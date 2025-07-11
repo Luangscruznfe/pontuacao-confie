@@ -450,6 +450,21 @@ def historico_comercial():
                            total_geral=total_geral,
                            media=media)
 
+@app.route('/zerar_tudo', methods=['POST'])
+def zerar_tudo():
+    senha = request.form.get('senha')
+    if senha == "confie123":  # ajuste para sua senha desejada
+        conn = sqlite3.connect('pontos.db')
+        c = conn.cursor()
+        for tabela in ['loja', 'expedicao', 'logistica', 'comercial']:
+            c.execute(f"DELETE FROM {tabela}")
+        conn.commit()
+        conn.close()
+        flash("✅ Todas as pontuações foram zeradas com sucesso!", "success")
+    else:
+        flash("❌ Senha incorreta. Ação cancelada.", "danger")
+    return redirect('/')
+
 
 if __name__ == '__main__':
     init_db()

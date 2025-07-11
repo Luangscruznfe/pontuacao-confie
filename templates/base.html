@@ -32,23 +32,32 @@
 <body>
 
   <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg">
-    <div class="container-fluid">
-      <a class="navbar-brand fw-bold text-white" href="/">Sistema de Pontuação</a>
-      <div class="collapse navbar-collapse">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="/loja">🏬 Loja</a></li>
-          <li class="nav-item"><a class="nav-link" href="/expedicao">📦 Expedição</a></li>
-          <li class="nav-item"><a class="nav-link" href="/logistica">🚚 Logística</a></li>
-	  <li class="nav-item"><a class="nav-link" href="/comercial">💼 Comercial</a></li>
-          <li class="nav-item"><a class="nav-link" href="/historico_loja">📊 Histórico Loja</a></li>
-          <li class="nav-item"><a class="nav-link" href="/historico_expedicao">📈 Histórico Expedição</a></li>
-          <li class="nav-item"><a class="nav-link" href="/historico_logistica">📋 Histórico Logística</a></li>
-	  <li class="nav-item"><a class="nav-link" href="/historico_comercial">📉 Histórico Comercial</a></li>
-        </ul>
-      </div>
+<nav class="navbar navbar-expand-lg bg-dark">
+  <div class="container-fluid">
+    <div class="d-flex align-items-center">
+      <a class="navbar-brand fw-bold text-white me-3" href="/">Sistema de Pontuação</a>
+
+      <!-- Botão de zerar -->
+      <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalZerar">
+        🗑️ Zerar Pontuações
+      </button>
     </div>
-  </nav>
+
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="/loja">🏬 Loja</a></li>
+        <li class="nav-item"><a class="nav-link" href="/expedicao">📦 Expedição</a></li>
+        <li class="nav-item"><a class="nav-link" href="/logistica">🚚 Logística</a></li>
+        <li class="nav-item"><a class="nav-link" href="/comercial">💼 Comercial</a></li>
+        <li class="nav-item"><a class="nav-link" href="/historico_loja">📊 Histórico Loja</a></li>
+        <li class="nav-item"><a class="nav-link" href="/historico_expedicao">📈 Histórico Expedição</a></li>
+        <li class="nav-item"><a class="nav-link" href="/historico_logistica">📋 Histórico Logística</a></li>
+        <li class="nav-item"><a class="nav-link" href="/historico_comercial">📉 Histórico Comercial</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
 
   <div class="container mt-4">
 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -63,6 +72,27 @@
 {% endwith %}
     {% block content %}{% endblock %}
   </div>
+<!-- Modal de Confirmação -->
+<div class="modal fade" id="modalZerar" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" action="/zerar_tudo">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirmar Zerar Pontuações</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <p>Digite a senha para confirmar a exclusão de todas as pontuações:</p>
+          <input type="password" class="form-control" name="senha" required>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-danger">Zerar</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
 
 </body>
 </html>
