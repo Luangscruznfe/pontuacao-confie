@@ -50,42 +50,25 @@
 
       <div class="mb-3">
         <label class="form-label">A (+1): Entregas concluídas 100% <span class="setor-financeiro">(Financeiro)</span></label>
-        <input type="number" class="form-control" name="A" value="0">
+        <input type="number" class="form-control" name="A" value="0" min="0">
       </div>
       <div class="mb-3">
         <label class="form-label">B (+1): Veículo limpo e organizado <span class="setor-gerente">(Gerente ADM)</span></label>
-        <input type="number" class="form-control" name="B" value="0">
+        <input type="number" class="form-control" name="B" value="0" min="0">
       </div>
       <div class="mb-3">
         <label class="form-label">C (+1): Acerto organizado e correto <span class="setor-financeiro">(Financeiro)</span></label>
-        <input type="number" class="form-control" name="C" value="0">
+        <input type="number" class="form-control" name="C" value="0" min="0">
       </div>
       <div class="mb-3">
         <label class="form-label">D (-2): Questões de jornada <span class="setor-rh">(RH)</span></label>
-        <input type="number" class="form-control" name="D" value="0">
+        <input type="number" class="form-control" name="D" value="0" max="0">
       </div>
       <div class="mb-3">
         <label class="form-label">E (-1): Erro do entregador <span class="setor-faturamento">(Faturamento)</span></label>
-        <input type="number" class="form-control" name="E" value="0">
+        <input type="number" class="form-control" name="E" value="0" max="0">
       </div>
 
       <div class="form-check">
         <input class="form-check-input" type="checkbox" name="extras" value="meta" id="meta">
-        <label class="form-check-label" for="meta">🏁 Meta alcançada (+2)</label>
-      </div>
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" name="extras" value="equipe90" id="equipe90">
-        <label class="form-check-label" for="equipe90">🤝 Trabalho em equipe (+1)</label>
-      </div>
-
-      <div class="mb-3 mt-3">
-        <label for="observacao" class="form-label">Observação:</label>
-        <textarea class="form-control" id="observacao" name="observacao" rows="3"></textarea>
-      </div>
-
-      <button type="submit" class="btn btn-success">Salvar</button>
-      <a href="/" class="btn btn-secondary">Voltar</a>
-    </form>
-  </div>
-</body>
-</html>
+        <label class="form-check
