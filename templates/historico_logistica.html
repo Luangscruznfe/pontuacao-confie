@@ -59,6 +59,7 @@
         {% if 'meta' in r[7] %} {% set total_parcial = total_parcial + 2 %} {% endif %}
         {% if 'equipe90' in r[7] %} {% set total_parcial = total_parcial + 1 %} {% endif %}
         {% set total_geral.valor = total_geral.valor + total_parcial %}
+
         <tr>
           <td>{{ r[0]|datetimeformat }}</td>
           <td>{{ r[1] }}</td>
