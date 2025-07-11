@@ -53,31 +53,34 @@
         </tr>
       </thead>
       <tbody>
+        {% set total_geral = namespace(valor=0) %}
         {% for r in registros %}
+        {% set total_parcial = (r[2]|int) + (r[3]|int) + (r[4]|int) + (r[5]|int) + (r[6]|int) + (r[7]|int) %}
+        {% if 'meta' in r[8] %} {% set total_parcial = total_parcial + 2 %} {% endif %}
+        {% if 'equipe90' in r[8] %} {% set total_parcial = total_parcial + 1 %} {% endif %}
+        {% set total_geral.valor = total_geral.valor + total_parcial %}
         <tr>
-          <td>{{ r[0]|datetimeformat }}</td> {# Data #}
-          <td>{{ r[1] }}</td>               {# Motorista #}
-          <td>{{ r[2] }}</td>               {# Entregas 100% #}
-          <td>{{ r[3] }}</td>               {# Veículo limpo #}
-          <td>{{ r[4] }}</td>               {# Acerto correto #}
-          <td>{{ r[5] }}</td>               {# Atrasos/jornada #}
-          <td>{{ r[6] }}</td>               {# Erro do entregador #}
-          <td>{{ r[7] }}</td>               {# Extras #}
-          <td>{{ r[9] }}</td>               {# Total (valor correto do BD) #}
-          <td>{{ r[8] }}</td>               {# Observação #}
+          <td>{{ r[0]|datetimeformat }}</td>
+          <td>{{ r[1] }}</td>
+          <td>{{ r[2] }}</td>
+          <td>{{ r[3] }}</td>
+          <td>{{ r[4] }}</td>
+          <td>{{ r[5] }}</td>
+          <td>{{ r[6] }}</td>
+          <td>{{ r[7] }}</td>
+          <td>{{ total_parcial }}</td>
+          <td>{{ r[8] }}</td>
         </tr>
         {% endfor %}
         <tr>
           <td colspan="8" class="text-end fw-bold">Total Geral:</td>
-          {# Utiliza a variável 'total_geral' passada pelo app.py #}
-          <td class="fw-bold {% if total_geral >= 0 %}text-success{% else %}text-danger{% endif %}">
-            {{ total_geral }}
+          <td class="fw-bold {% if total_geral.valor >= 0 %}text-success{% else %}text-danger{% endif %}">
+            {{ total_geral.valor }}
           </td>
           <td></td>
         </tr>
         <tr>
           <td colspan="8" class="text-end fw-bold">Média por Motorista:</td>
-           {# Utiliza a variável 'media' passada pelo app.py #}
           <td class="fw-bold {% if media >= 0 %}text-primary{% else %}text-danger{% endif %}">
             {{ "%.2f"|format(media) }}
           </td>
