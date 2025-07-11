@@ -13,7 +13,31 @@
     .form-label {
       font-weight: bold;
     }
+    .setor-gerente { color: #b58900; font-weight: bold; }
+    .setor-rh { color: #6c5ce7; font-weight: bold; }
+    .setor-financeiro { color: #e74c3c; font-weight: bold; }
   </style>
+  <script>
+    function validarCampos() {
+      const a = document.querySelector('input[name="A"]').value;
+      const b = document.querySelector('input[name="B"]').value;
+      const c = document.querySelector('input[name="C"]').value;
+      const d = document.querySelector('input[name="D"]').value;
+      const e = document.querySelector('input[name="E"]').value;
+
+      if (a < 0 || b < 0 || c < 0) {
+        alert("Os campos A, B e C só aceitam valores positivos.");
+        return false;
+      }
+
+      if (d > 0 || e > 0) {
+        alert("Os campos D e E só aceitam valores negativos.");
+        return false;
+      }
+
+      return true;
+    }
+  </script>
 </head>
 <body>
   <div class="container mt-4">
@@ -29,53 +53,34 @@
     {% endwith %}
 
     <h2 class="mb-4">🏬 Registro Diário - Loja</h2>
-    <form method="POST">
+    <form method="POST" onsubmit="return validarCampos()">   
       <div class="mb-3">
         <label for="data" class="form-label">Data:</label>
         <input type="date" class="form-control" id="data" name="data" required>
       </div>
 
       <div class="mb-3">
-        <label class="form-label">Funcionário:</label>
-        <select class="form-select" name="funcionario" required>
-          {% for f in funcionarios %}
-          <option value="{{ f }}">{{ f }}</option>
-          {% endfor %}
-        </select>
-      </div>
-
-      <!-- Campo A - positivo -->
-      <div class="form-group mt-3">
-        <label style="color: #f4a261;">A (+1): Organização e limpeza da loja <small style="color: #f4a261;">(Gerente ADM)</small></label>
+        <label class="form-label">A (+1): Organização e limpeza da loja <span class="setor-gerente">(Gerente ADM)</span></label>
         <input type="number" class="form-control" name="A" value="0" min="0">
       </div>
-
-      <!-- Campo B - positivo -->
-      <div class="form-group mt-3">
-        <label style="color: #a78bfa;">B (+1): Pontualidade <small style="color: #a78bfa;">(RH)</small></label>
+      <div class="mb-3">
+        <label class="form-label">B (+1): Pontualidade <span class="setor-rh">(RH)</span></label>
         <input type="number" class="form-control" name="B" value="0" min="0">
       </div>
-
-      <!-- Campo C - positivo -->
-      <div class="form-group mt-3">
-        <label style="color: #ff7f7f;">C (+1): Fechamento do caixa <small style="color: #ff7f7f;">(Financeiro)</small></label>
+      <div class="mb-3">
+        <label class="form-label">C (+1): Fechamento do caixa <span class="setor-financeiro">(Financeiro)</span></label>
         <input type="number" class="form-control" name="C" value="0" min="0">
       </div>
-
-      <!-- Campo D - negativo -->
-      <div class="form-group mt-3">
-        <label style="color: #a78bfa;">D (-1): Não postar em rede social <small style="color: #a78bfa;">(RH)</small></label>
+      <div class="mb-3">
+        <label class="form-label">D (-1): Não postar em rede social <span class="setor-rh">(RH)</span></label>
         <input type="number" class="form-control" name="D" value="0" max="0">
       </div>
-
-      <!-- Campo E - negativo -->
-      <div class="form-group mt-3">
-        <label style="color: #f4a261;">E (-2): Perda por validade/avaria <small style="color: #f4a261;">(Gerente ADM)</small></label>
+      <div class="mb-3">
+        <label class="form-label">E (-2): Perda por validade/avaria <span class="setor-gerente">(Gerente ADM)</span></label>
         <input type="number" class="form-control" name="E" value="0" max="0">
       </div>
 
-      <!-- Extras -->
-      <div class="form-check mt-3">
+      <div class="form-check">
         <input class="form-check-input" type="checkbox" name="extras" value="meta" id="meta">
         <label class="form-check-label" for="meta">🏁 Meta alcançada (+2)</label>
       </div>
