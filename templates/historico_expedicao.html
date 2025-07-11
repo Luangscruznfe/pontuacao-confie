@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Histórico - Expedição{% endblock %}
+
+{% block content %}
+<style>
+  .setor-financeiro { color: #e74c3c; font-weight: bold; }
+  .setor-faturamento { color: #2ecc71; font-weight: bold; }
+  .setor-rh { color: #6c5ce7; font-weight: bold; }
+  .setor-gerente { color: #b58900; font-weight: bold; }
+</style>
+
+<div class="container">
+  <h2 class="mb-4">📦 Histórico de Pontuação - Expedição</h2>
+
+  <table class="table table-bordered text-white" style="table-layout: fixed; word-wrap: break-word;">
+    <thead class="table-dark">
+      <tr>
+        <th style="width: 100px;">Data</th>
+        <th style="width: 220px;">Organização e limpeza estoque <span class="setor-gerente">(Gerente ADM)</span></th>
+        <th style="width: 200px;">Separação correta do mapa <span class="setor-faturamento">(Faturamento)</span></th>
+        <th style="width: 160px;">Faturamento OK <span class="setor-financeiro">(Financeiro)</span></th>
+        <th style="width: 160px;">Erros / Devoluções <span class="setor-financeiro">(Financeiro)</span></th>
+        <th style="width: 240px;">Finalização após horário (abaixo de 50k) <span class="setor-rh">(RH)</span></th>
+        <th style="width: 120px;">Extras</th>
+        <th style="width: 200px;">Observação</th>
+        <th style="width: 100px;">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set ns = namespace(total_geral=0) %}
+      {% for r in registros %}
+        {% set total_parcial = (r[1]|int) + (r[2]|int) + (r[3]|int) - ((r[4]|int) * 2) - (r[5]|int) %}
+        {% if 'meta' in r[6] %} {% set total_parcial = total_parcial + 2 %} {% endif %}
+        {% if 'equipe90' in r[6] %} {% set total_parcial = total_parcial + 1 %} {% endif %}
+        {% set ns.total_geral = ns.total_geral + total_parcial %}
+        <tr>
+          <td>{{ r[0]|datetimeformat }}</td>
+          <td>{{ r[1] }}</td>
+          <td>{{ r[2] }}</td>
+          <td>{{ r[3] }}</td>
+          <td>{{ r[4] }}</td>
+          <td>{{ r[5] }}</td>
+          <td>{{ r[6] }}</td>
+          <td>{{ r[7] }}</td>
+          <td>{{ total_parcial }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot class="table-dark">
+  <tr>
+    <td colspan="8" class="text-end fw-bold">Total Geral:</td>
+    <td class="fw-bold {% if ns.total_geral >= 0 %}text-success{% else %}text-danger{% endif %}">
+      {{ ns.total_geral }}
+    </td>
+  </tr>
+</tfoot>
+
+  </table>
+
+  <a href="/" class="btn btn-secondary mt-3">🔙 Voltar</a>
+</div>
+{% endblock %}

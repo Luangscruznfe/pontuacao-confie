@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Histórico - Loja{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">📊 Histórico de Pontuação - Loja</h2>
+    <table class="table table-bordered text-white" style="table-layout: fixed; word-wrap: break-word;">
+        <thead class="table-dark">
+            <tr>
+                <th style="width: 100px;">Data</th>
+                <th style="width: 180px;">Organização da loja <span class="setor-gerente">(Gerente ADM)</span></th>
+                <th style="width: 180px;">Pontualidade <span class="setor-rh">(RH)</span></th>
+                <th style="width: 160px;">Fechamento do caixa <span class="setor-financeiro">(Financeiro)</span></th>
+                <th style="width: 160px;">Não postar em rede social <span class="setor-rh">(RH)</span></th>
+                <th style="width: 200px;">Perda por validade/avaria <span class="setor-gerente">(Gerente ADM)</span></th>
+                <th style="width: 100px;">Extras</th>
+                <th style="width: 100px;">Observação</th>
+                <th style="width: 100px;">Total Parcial</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set ns = namespace(total_geral=0) %}
+            {% for r in registros %}
+                {% set total_parcial = r[1] + r[2] + r[3] - r[4] - (2 * r[5]) %}
+                {% if 'meta' in r[6] %} {% set total_parcial = total_parcial + 2 %} {% endif %}
+                {% if 'equipe90' in r[6] %} {% set total_parcial = total_parcial + 1 %} {% endif %}
+                {% set ns.total_geral = ns.total_geral + total_parcial %}
+                <tr>
+                    <td>{{ r[0]|datetimeformat }}</td>
+                    <td>{{ r[1] }}</td>
+                    <td>{{ r[2] }}</td>
+                    <td>{{ r[3] }}</td>
+                    <td>{{ r[4] }}</td>
+                    <td>{{ r[5] }}</td>
+                    <td>{{ r[6] }}</td>
+                    <td>{{ r[7] }}</td>
+                    <td>{{ total_parcial }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+       <tfoot class="table-dark">
+    <tr>
+        <td colspan="8" class="text-end fw-bold">Total Geral:</td>
+        <td class="fw-bold {% if ns.total_geral >= 0 %}text-success{% else %}text-danger{% endif %}">
+            {{ ns.total_geral }}
+        </td>
+    </tr>
+</tfoot>
+    </table>
+    <a href="/" class="btn btn-secondary mt-3">🔙 Voltar</a>
+</div>
+{% endblock %}

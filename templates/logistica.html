@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro Diário - Logística</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #0d1b2a;
+      color: white;
+    }
+    .form-label {
+      font-weight: bold;
+    }
+    .setor-gerente { color: #b58900; font-weight: bold; }
+    .setor-rh { color: #6c5ce7; font-weight: bold; }
+    .setor-financeiro { color: #e74c3c; font-weight: bold; }
+    .setor-faturamento { color: #2ecc71; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container mt-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show mt-3" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <h2 class="mb-4">🚛 Registro Diário - Logística</h2>
+    <form method="POST">   
+      <div class="mb-3">
+        <label for="data" class="form-label">Data:</label>
+        <input type="date" class="form-control" id="data" name="data" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="motorista" class="form-label">Motorista:</label>
+        <select class="form-select" id="motorista" name="motorista" required>
+          {% for m in motoristas %}
+          <option value="{{ m }}">{{ m }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">A (+1): Entregas concluídas 100% <span class="setor-financeiro">(Financeiro)</span></label>
+        <input type="number" class="form-control" name="A" value="0">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">B (+1): Veículo limpo e organizado <span class="setor-gerente">(Gerente ADM)</span></label>
+        <input type="number" class="form-control" name="B" value="0">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">C (+1): Acerto organizado e correto <span class="setor-financeiro">(Financeiro)</span></label>
+        <input type="number" class="form-control" name="C" value="0">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">D (-2): Questões de jornada <span class="setor-rh">(RH)</span></label>
+        <input type="number" class="form-control" name="D" value="0">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">E (-1): Erro do entregador <span class="setor-faturamento">(Faturamento)</span></label>
+        <input type="number" class="form-control" name="E" value="0">
+      </div>
+
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="extras" value="meta" id="meta">
+        <label class="form-check-label" for="meta">🏁 Meta alcançada (+2)</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="extras" value="equipe90" id="equipe90">
+        <label class="form-check-label" for="equipe90">🤝 Trabalho em equipe (+1)</label>
+      </div>
+
+      <div class="mb-3 mt-3">
+        <label for="observacao" class="form-label">Observação:</label>
+        <textarea class="form-control" id="observacao" name="observacao" rows="3"></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-success">Salvar</button>
+      <a href="/" class="btn btn-secondary">Voltar</a>
+    </form>
+  </div>
+</body>
+</html>
