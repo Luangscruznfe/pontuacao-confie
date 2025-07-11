@@ -30,7 +30,7 @@
     <tbody>
       {% set ns = namespace(total_geral=0) %}
       {% for r in registros %}
-        {% set total_parcial = (r[1]|int) + (r[2]|int) + (r[3]|int) - ((r[4]|int) * 2) - (r[5]|int) %}
+        {% set total_parcial = (r[1]|int) + (r[2]|int) + (r[3]|int) - (2 * (r[4]|int|abs)) - (r[5]|int|abs) %}
         {% if 'meta' in r[6] %} {% set total_parcial = total_parcial + 2 %} {% endif %}
         {% if 'equipe90' in r[6] %} {% set total_parcial = total_parcial + 1 %} {% endif %}
         {% set ns.total_geral = ns.total_geral + total_parcial %}

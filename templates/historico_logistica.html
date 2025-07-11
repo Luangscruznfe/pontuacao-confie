@@ -55,35 +55,37 @@
       <tbody>
         {% set total_geral = namespace(valor=0) %}
         {% for r in registros %}
-        <tr>
-          <td>{{ r[0]|datetimeformat }}</td>
-          <td>{{ r[1] }}</td>
-          <td>{{ r[2] }}</td>
-          <td>{{ r[3] }}</td>
-          <td>{{ r[4] }}</td>
-          <td>{{ r[5] }}</td>
-          <td>{{ r[6] }}</td>
-          <td>{{ r[7] }}</td>
-          <td>{{ r[9] }}</td>
-          <td>{{ r[8] }}</td>
-        </tr>
-        {% set total_geral.valor = total_geral.valor + (r[9] | int) %}
+          {% set total_parcial = (r[2]|int) + (r[3]|int) + (r[4]|int) - (r[5]|int) - (2 * (r[6]|int)) %}
+          {% if 'meta' in r[7] %} {% set total_parcial = total_parcial + 2 %} {% endif %}
+          {% if 'equipe90' in r[7] %} {% set total_parcial = total_parcial + 1 %} {% endif %}
+          {% set total_geral.valor = total_geral.valor + total_parcial %}
+          <tr>
+            <td>{{ r[0]|datetimeformat }}</td>
+            <td>{{ r[1] }}</td>
+            <td>{{ r[2] }}</td>
+            <td>{{ r[3] }}</td>
+            <td>{{ r[4] }}</td>
+            <td>{{ r[5] }}</td>
+            <td>{{ r[6] }}</td>
+            <td>{{ r[7] }}</td>
+            <td>{{ total_parcial }}</td>
+            <td>{{ r[8] }}</td>
+          </tr>
         {% endfor %}
         <tr>
-  <td colspan="8" class="text-end fw-bold">Total Geral:</td>
-  <td class="fw-bold {% if total_geral.valor >= 0 %}text-success{% else %}text-danger{% endif %}">
-    {{ total_geral.valor }}
-  </td>
-  <td></td>
-</tr>
-<tr>
-  <td colspan="8" class="text-end fw-bold">Média por Motorista:</td>
-  <td class="fw-bold {% if media >= 0 %}text-primary{% else %}text-danger{% endif %}">
-    {{ "%.2f"|format(media) }}
-  </td>
-  <td></td>
-</tr>
-
+          <td colspan="8" class="text-end fw-bold">Total Geral:</td>
+          <td class="fw-bold {% if total_geral.valor >= 0 %}text-success{% else %}text-danger{% endif %}">
+            {{ total_geral.valor }}
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td colspan="8" class="text-end fw-bold">Média por Motorista:</td>
+          <td class="fw-bold {% if media >= 0 %}text-primary{% else %}text-danger{% endif %}">
+            {{ "%.2f"|format(media) }}
+          </td>
+          <td></td>
+        </tr>
       </tbody>
     </table>
 
