@@ -1,97 +1,53 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <title>Histórico de Pontuação - Logística</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      background-color: #0d1b2a;
-      color: white;
-    }
-    table {
-      background-color: white;
-      color: black;
-    }
-    .form-select, .form-label {
-      color: black;
-    }
-    .setor-financeiro { color: #e74c3c; font-weight: bold; }
-    .setor-faturamento { color: #2ecc71; font-weight: bold; }
-    .setor-gerente { color: #b58900; font-weight: bold; }
-    .setor-rh { color: #6c5ce7; font-weight: bold; }
-  </style>
-</head>
-<body>
-  <div class="container mt-4">
-    <h2 class="mb-4">🚛 Histórico de Pontuação - Logística</h2>
+{% extends 'base.html' %}
 
-    <form method="get" class="mb-3">
-      <label for="motorista">Filtrar por motorista:</label>
-      <select name="motorista" id="motorista" class="form-select" onchange="this.form.submit()">
-        <option value="">Todos</option>
-        {% for m in motoristas %}
-          <option value="{{ m }}" {% if m == motorista %}selected{% endif %}>{{ m }}</option>
-        {% endfor %}
-      </select>
-    </form>
+{% block title %}Histórico - Loja{% endblock %}
 
-    <table class="table table-bordered table-striped">
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Motorista</th>
-          <th>Entregas 100% <span class="setor-financeiro">(Financeiro)</span></th>
-          <th>Veículo limpo <span class="setor-gerente">(Gerente ADM)</span></th>
-          <th>Acerto correto <span class="setor-financeiro">(Financeiro)</span></th>
-          <th>Atrasos/jornada <span class="setor-rh">(RH)</span></th>
-          <th>Erro do entregador <span class="setor-faturamento">(Faturamento)</span></th>
-          <th>Extras</th>
-          <th>Total</th>
-          <th>Observação</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% set total_geral = namespace(valor=0) %}
-        {% for r in registros %}
-        {% set total_parcial = (r[2]|int) + (r[3]|int) + (r[4]|int) + (r[5]|int) + (r[6]|int) + (r[7]|int) %}
-        {% if 'meta' in r[8] %} {% set total_parcial = total_parcial + 2 %} {% endif %}
-        {% if 'equipe90' in r[8] %} {% set total_parcial = total_parcial + 1 %} {% endif %}
-        {% set total_geral.valor = total_geral.valor + total_parcial %}
-        <tr>
-          <td>{{ r[0]|datetimeformat }}</td>
-          <td>{{ r[1] }}</td>
-          <td>{{ r[2] }}</td>
-          <td>{{ r[3] }}</td>
-          <td>{{ r[4] }}</td>
-          <td>{{ r[5] }}</td>
-          <td>{{ r[6] }}</td>
-          <td>{{ r[7] }}</td>
-          <td>{{ total_parcial }}</td>
-          <td>{{ r[8] }}</td>
-        </tr>
-        {% endfor %}
-        <tr>
-          <td colspan="8" class="text-end fw-bold">Total Geral:</td>
-          <td class="fw-bold {% if total_geral.valor >= 0 %}text-success{% else %}text-danger{% endif %}">
-            {{ total_geral.valor }}
-          </td>
-          <td></td>
-        </tr>
-        <tr>
-          <td colspan="8" class="text-end fw-bold">Média por Motorista:</td>
-          <td class="fw-bold {% if media >= 0 %}text-primary{% else %}text-danger{% endif %}">
-            {{ "%.2f"|format(media) }}
-          </td>
-          <td></td>
-        </tr>
-      </tbody>
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">📊 Histórico de Pontuação - Loja</h2>
+    <table class="table table-bordered text-white" style="table-layout: fixed; word-wrap: break-word;">
+        <thead class="table-dark">
+            <tr>
+                <th style="width: 100px;">Data</th>
+                <th style="width: 180px;">Organização da loja <span class="setor-gerente">(Gerente ADM)</span></th>
+                <th style="width: 180px;">Pontualidade <span class="setor-rh">(RH)</span></th>
+                <th style="width: 160px;">Fechamento do caixa <span class="setor-financeiro">(Financeiro)</span></th>
+                <th style="width: 160px;">Não postar em rede social <span class="setor-rh">(RH)</span></th>
+                <th style="width: 200px;">Perda por validade/avaria <span class="setor-gerente">(Gerente ADM)</span></th>
+                <th style="width: 100px;">Extras</th>
+                <th style="width: 100px;">Observação</th>
+                <th style="width: 100px;">Total Parcial</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set ns = namespace(total_geral=0) %}
+            {% for r in registros %}
+                {% set total_parcial = (r[1]|int) + (r[2]|int) + (r[3]|int) + (r[4]|int) + (r[5]|int) %}
+                {% if 'meta' in r[6] %} {% set total_parcial = total_parcial + 2 %} {% endif %}
+                {% if 'equipe90' in r[6] %} {% set total_parcial = total_parcial + 1 %} {% endif %}
+                {% set ns.total_geral = ns.total_geral + total_parcial %}
+                <tr>
+                    <td>{{ r[0]|datetimeformat }}</td>
+                    <td>{{ r[1] }}</td>
+                    <td>{{ r[2] }}</td>
+                    <td>{{ r[3] }}</td>
+                    <td>{{ r[4] }}</td>
+                    <td>{{ r[5] }}</td>
+                    <td>{{ r[6] }}</td>
+                    <td>{{ r[7] }}</td>
+                    <td>{{ total_parcial }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot class="table-dark">
+            <tr>
+                <td colspan="8" class="text-end fw-bold">Total Geral:</td>
+                <td class="fw-bold {% if ns.total_geral >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    {{ ns.total_geral }}
+                </td>
+            </tr>
+        </tfoot>
     </table>
-
-    <div class="mt-3">
-      <a href="/" class="btn btn-secondary">← Voltar</a>
-    </div>
-  </div>
-</body>
-</html>
+    <a href="/" class="btn btn-secondary mt-3">🔙 Voltar</a>
+</div>
+{% endblock %}

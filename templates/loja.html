@@ -1,34 +1,26 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Registro Expedição</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <style>
-        body {
-            background-color: #0d1b2a;
-            color: white;
-        }
-        .form-control {
-            background-color: white;
-            color: black;
-        }
-        .form-check-label {
-            color: white;
-        }
-        small {
-            font-size: 0.9em;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Registro Diário - Loja</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #0d1b2a;
+      color: white;
+    }
+    .form-label {
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-<div class="container mt-5">
-    <h2 class="mb-4">🛒 Registro Diário - Loja</h2>
-
+  <div class="container mt-4">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
-          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          <div class="alert alert-{{ category }} alert-dismissible fade show mt-3" role="alert">
             {{ message }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
@@ -36,53 +28,70 @@
       {% endif %}
     {% endwith %}
 
+    <h2 class="mb-4">🏬 Registro Diário - Loja</h2>
     <form method="POST">
-        <div class="form-group">
-            <label for="data">Data:</label>
-            <input type="date" class="form-control" id="data" name="data" required>
-        </div>
+      <div class="mb-3">
+        <label for="data" class="form-label">Data:</label>
+        <input type="date" class="form-control" id="data" name="data" required>
+      </div>
 
-        <div class="form-group mt-3">
-            <label style="color: #f4a261;">A (+1): Organização e limpeza da loja <small style="color: #f4a261;">(Gerente ADM)</small></label>
-            <input type="number" class="form-control" name="A" value="0">
-        </div>
+      <div class="mb-3">
+        <label class="form-label">Funcionário:</label>
+        <select class="form-select" name="funcionario" required>
+          {% for f in funcionarios %}
+          <option value="{{ f }}">{{ f }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
-        <div class="form-group mt-3">
-            <label style="color: #a78bfa;">B (+1): Pontualidade <small style="color: #a78bfa;">(RH)</small></label>
-            <input type="number" class="form-control" name="B" value="0">
-        </div>
+      <!-- Campo A - positivo -->
+      <div class="form-group mt-3">
+        <label style="color: #f4a261;">A (+1): Organização e limpeza da loja <small style="color: #f4a261;">(Gerente ADM)</small></label>
+        <input type="number" class="form-control" name="A" value="0" min="0">
+      </div>
 
-        <div class="form-group mt-3">
-            <label style="color: #ff7f7f;">C (+1): Fechamento do caixa <small style="color: #ff7f7f;">(Financeiro)</small></label>
-            <input type="number" class="form-control" name="C" value="0">
-        </div>
+      <!-- Campo B - positivo -->
+      <div class="form-group mt-3">
+        <label style="color: #a78bfa;">B (+1): Pontualidade <small style="color: #a78bfa;">(RH)</small></label>
+        <input type="number" class="form-control" name="B" value="0" min="0">
+      </div>
 
-        <div class="form-group mt-3">
-            <label style="color: #a78bfa;">D (-1): Não postar em rede social <small style="color: #a78bfa;">(RH)</small></label>
-            <input type="number" class="form-control" name="D" value="0">
-        </div>
+      <!-- Campo C - positivo -->
+      <div class="form-group mt-3">
+        <label style="color: #ff7f7f;">C (+1): Fechamento do caixa <small style="color: #ff7f7f;">(Financeiro)</small></label>
+        <input type="number" class="form-control" name="C" value="0" min="0">
+      </div>
 
-        <div class="form-group mt-3">
-            <label style="color: #f4a261;">E (-2): Perda por validade/avaria <small style="color: #f4a261;">(Gerente ADM)</small></label>
-            <input type="number" class="form-control" name="E" value="0">
-        </div>
+      <!-- Campo D - negativo -->
+      <div class="form-group mt-3">
+        <label style="color: #a78bfa;">D (-1): Não postar em rede social <small style="color: #a78bfa;">(RH)</small></label>
+        <input type="number" class="form-control" name="D" value="0" max="0">
+      </div>
 
-        <div class="form-group mt-4">
-            <label class="form-check-label">⭐ Extras</label><br>
-            <input type="checkbox" class="form-check-input" name="extras" value="meta"> Meta atingida (+2)<br>
-            <input type="checkbox" class="form-check-input" name="extras" value="equipe90"> Equipe 90%<br>
-        </div>
+      <!-- Campo E - negativo -->
+      <div class="form-group mt-3">
+        <label style="color: #f4a261;">E (-2): Perda por validade/avaria <small style="color: #f4a261;">(Gerente ADM)</small></label>
+        <input type="number" class="form-control" name="E" value="0" max="0">
+      </div>
 
-        <div class="form-group mt-3">
-            <label>📝 Observação:</label>
-            <textarea class="form-control" name="observacao" rows="3"></textarea>
-        </div>
+      <!-- Extras -->
+      <div class="form-check mt-3">
+        <input class="form-check-input" type="checkbox" name="extras" value="meta" id="meta">
+        <label class="form-check-label" for="meta">🏁 Meta alcançada (+2)</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="extras" value="equipe90" id="equipe90">
+        <label class="form-check-label" for="equipe90">🤝 Trabalho em equipe (+1)</label>
+      </div>
 
-        <button type="submit" class="btn btn-success mt-4">✅ Salvar</button>
-        <a href="/" class="btn btn-secondary mt-4 ms-2">🔙 Voltar</a>
+      <div class="mb-3 mt-3">
+        <label for="observacao" class="form-label">Observação:</label>
+        <textarea class="form-control" id="observacao" name="observacao" rows="3"></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-success">Salvar</button>
+      <a href="/" class="btn btn-secondary">Voltar</a>
     </form>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </div>
 </body>
 </html>
