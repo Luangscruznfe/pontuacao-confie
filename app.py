@@ -473,8 +473,8 @@ def historico_comercial():
     # Média por vendedor
     media = total_geral / len(vendedores_unicos) if vendedores_unicos else 0
 
-    # Lista de vendedores para o filtro
-    c.execute("SELECT DISTINCT vendedor FROM comercial")
+    # 🔁 NOVA FORMA DE PEGAR TODOS OS VENDEDORES (inclusive sem registro)
+    c.execute("SELECT nome FROM vendedores ORDER BY nome")
     lista_vendedores = [row[0] for row in c.fetchall()]
 
     conn.close()
