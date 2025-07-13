@@ -458,7 +458,10 @@ def historico_comercial():
 
     vendedor = request.args.get('vendedor', '')
 
-    # Busca todos ou filtra por vendedor
+    # Lista fixa de vendedores
+    lista_vendedores = ['EVERTON', 'MARCELO', 'PEDRO', 'SILVANA', 'TIAGO', 'RODOLFO', 'MARCOS', 'THYAGO', 'EQUIPE']
+
+    # Busca registros com ou sem filtro
     if vendedor:
         c.execute("SELECT * FROM comercial WHERE vendedor = ? ORDER BY data DESC", (vendedor,))
     else:
@@ -466,16 +469,10 @@ def historico_comercial():
     
     registros = c.fetchall()
 
-    # Cálculo do total geral
-    total_geral = sum([r[10] for r in registros])  # campo total é o índice 10
-    vendedores_unicos = set([r[2] for r in registros])  # índice 2 é vendedor
-
-    # Média por vendedor
-    media = total_geral / len(vendedores_unicos) if vendedores_unicos else 0
-
-    # 🔁 NOVA FORMA DE PEGAR TODOS OS VENDEDORES (inclusive sem registro)
-    c.execute("SELECT nome FROM vendedores ORDER BY nome")
-    lista_vendedores = [row[0] for row in c.fetchall()]
+    # Cálculo do total geral e média por vendedor com ponto
+    total_geral = sum([r[10] for r in registros])  # campo total = índice 10
+    vendedores_com_ponto = set([r[2] for r in registros])  # índice 2 = vendedor
+    media = total_geral / len(vendedores_com_ponto) if vendedores_com_ponto else 0
 
     conn.close()
 
@@ -487,6 +484,7 @@ def historico_comercial():
         vendedores=lista_vendedores,
         vendedor=vendedor
     )
+
 
 @app.route('/zerar_tudo', methods=['POST'])
 def zerar_tudo():
