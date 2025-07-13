@@ -6,63 +6,66 @@
 <div class="container mt-4">
   <h2 class="mb-4">📈 Histórico de Pontuação - Expedição</h2>
 
-  <table class="table table-bordered text-white" style="table-layout: fixed; word-wrap: break-word;">
-    <thead class="table-dark">
-      <tr>
-        <th>Data</th>
-        <th>
-          Organização e limpeza estoque<br>
-          <span class="text-warning">(Gerente ADM)</span>
-        </th>
-        <th>
-          Separação/conferência do mapa corretamente<br>
-          <span style="color: #2ecc71;">(Faturamento)</span>
-        </th>
-        <th>
-          Faturamento OK<br>
-          <span style="color: red;">(Financeiro)</span>
-        </th>
-        <th>
-          Erro ou devolução / falta na entrega<br>
-          <span style="color: red;">(Financeiro)</span>
-        </th>
-        <th>
-          Finalização após horário<br>(abaixo de 50k)<br>
-          <span style="color: #6c5ce7;">(RH)</span>
-        </th>
-        <th>Extras</th>
-        <th>Total</th>
-        <th>Observação</th>
-      </tr>
-    </thead>
+  <!-- Torna a tabela rolável horizontalmente no mobile -->
+  <div class="table-responsive">
+    <table class="table table-bordered text-white" style="table-layout: fixed; word-wrap: break-word;">
+      <thead class="table-dark">
+        <tr>
+          <th>Data</th>
+          <th>
+            Organização e limpeza estoque<br>
+            <span class="text-warning">(Gerente ADM)</span>
+          </th>
+          <th>
+            Separação/conferência do mapa corretamente<br>
+            <span style="color: #2ecc71;">(Faturamento)</span>
+          </th>
+          <th>
+            Faturamento OK<br>
+            <span style="color: red;">(Financeiro)</span>
+          </th>
+          <th>
+            Erro ou devolução / falta na entrega<br>
+            <span style="color: red;">(Financeiro)</span>
+          </th>
+          <th>
+            Finalização após horário<br>(abaixo de 50k)<br>
+            <span style="color: #6c5ce7;">(RH)</span>
+          </th>
+          <th>Extras</th>
+          <th>Total</th>
+          <th>Observação</th>
+        </tr>
+      </thead>
 
-    <tbody>
-      {% for r in registros %}
-      <tr>
-        <td>{{ r[0]|datetimeformat }}</td>
-        <td>{{ r[1] }}</td>
-        <td>{{ r[2] }}</td>
-        <td>{{ r[3] }}</td>
-        <td>{{ r[4] }}</td>
-        <td>{{ r[5] }}</td>
-        <td>
-          {% set extras = r[6] %}
-          {% if 'meta' in extras %}Meta de faturamento (+2)<br>{% endif %}
-          {% if 'equipe90' in extras %}Equipe chegou a 90% de pontuação (+1){% endif %}
-        </td>
-        <td>{{ r[8] }}</td>
-        <td>{{ r[7] }}</td>
-      </tr>
-      {% endfor %}
-      <tr>
-        <td colspan="7" class="text-end fw-bold">Total Geral:</td>
-        <td class="fw-bold {% if total_geral >= 0 %}text-success{% else %}text-danger{% endif %}">
-          {{ total_geral }}
-        </td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
+      <tbody>
+        {% for r in registros %}
+        <tr>
+          <td>{{ r[0]|datetimeformat }}</td>
+          <td>{{ r[1] }}</td>
+          <td>{{ r[2] }}</td>
+          <td>{{ r[3] }}</td>
+          <td>{{ r[4] }}</td>
+          <td>{{ r[5] }}</td>
+          <td>
+            {% set extras = r[6] %}
+            {% if 'meta' in extras %}Meta de faturamento (+2)<br>{% endif %}
+            {% if 'equipe90' in extras %}Equipe chegou a 90% de pontuação (+1){% endif %}
+          </td>
+          <td>{{ r[8] }}</td>
+          <td>{{ r[7] }}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+          <td colspan="7" class="text-end fw-bold">Total Geral:</td>
+          <td class="fw-bold {% if total_geral >= 0 %}text-success{% else %}text-danger{% endif %}">
+            {{ total_geral }}
+          </td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
   <a href="/" class="btn btn-secondary mt-3">🔙 Voltar</a>
 </div>
