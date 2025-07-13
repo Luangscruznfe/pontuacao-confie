@@ -218,7 +218,7 @@ def loja():
         if 'equipe90' in extras:
             extras_pontos += 1
 
-        total = A + B + C - D - (2 * E) + extras_pontos
+        total = A + B + C + D + E + extras_pontos
 
         conn = sqlite3.connect('pontos.db')
         c = conn.cursor()
@@ -231,14 +231,6 @@ def loja():
 
     return render_template('loja.html')
 
-@app.route('/historico_loja')
-def historico_loja():
-    conn = sqlite3.connect('pontos.db')
-    c = conn.cursor()
-    c.execute('SELECT data, A, B, C, D, E, extras, observacao, total FROM loja ORDER BY data DESC')
-    registros = c.fetchall()
-    conn.close()
-    return render_template('historico_loja.html', registros=registros)
 
 # =======================================================================
 # EXPEDIÇÃO
@@ -262,7 +254,7 @@ def expedicao():
         if 'equipe90' in extras:
             extras_pontos += 1
 
-        total = A + B + C - D - E + extras_pontos
+        total = A + B + C + D + E + extras_pontos
 
         conn = sqlite3.connect('pontos.db')
         c = conn.cursor()
@@ -283,7 +275,11 @@ def historico_expedicao():
     c.execute('SELECT data, A, B, C, D, E, extras, observacao, total FROM expedicao ORDER BY data DESC')
     registros = c.fetchall()
     conn.close()
-    return render_template('historico_expedicao.html', registros=registros)
+
+    total_geral = sum([r[8] for r in registros]) if registros else 0  # índice 8 = campo total
+
+    return render_template('historico_expedicao.html', registros=registros, total_geral=total_geral)
+	
 
 # Nova rota para a Logística com menu de motoristas e formulário de pontuação
 @app.route('/logistica', methods=['GET', 'POST'])
@@ -307,27 +303,31 @@ def logistica():
         )
     ''')
 
-    motoristas = ['Denilson', 'Fabio', 'Renan', 'Robson', 'Simone', 'Vinicius']
+    motoristas = ['Denilson', 'Fabio', 'Renan', 'Robson', 'Simone', 'Vinicius', 'Equipe']
 
     if request.method == 'POST':
         data = request.form['data']
         motorista = request.form['motorista']
-        A = int(request.form.get('A', 0))
-        B = int(request.form.get('B', 0))
-        C = int(request.form.get('C', 0))
-        D = int(request.form.get('D', 0))
-        E = int(request.form.get('E', 0))
+        A = safe_int(request.form.get('A'))
+        B = safe_int(request.form.get('B'))
+        C = safe_int(request.form.get('C'))
+        D = safe_int(request.form.get('D'))
+        E = safe_int(request.form.get('E'))
         extras = request.form.getlist('extras')
         observacao = request.form.get('observacao', '')
 
-        total = A + B + C - D - (2 * E)
+        # Corrigido: D e E já vêm negativos se for o caso, então apenas somamos
+        total = A + B + C + D + E
         if 'meta' in extras:
             total += 2
         if 'equipe90' in extras:
             total += 1
 
-        c.execute('INSERT INTO logistica (data, motorista, A, B, C, D, E, extras, observacao, total) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                  (data, motorista, A, B, C, D, E, ','.join(extras), observacao, total))
+        c.execute('''
+            INSERT INTO logistica (data, motorista, A, B, C, D, E, extras, observacao, total)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (data, motorista, A, B, C, D, E, ','.join(extras), observacao, total))
+
         conn.commit()
         flash("✅ Pontuação da logística registrada com sucesso!", "success")
         return redirect('/logistica')
@@ -340,26 +340,56 @@ def historico_logistica():
     motorista = request.args.get('motorista', '')
     conn = sqlite3.connect('pontos.db')
     c = conn.cursor()
-    motoristas = ['Denilson', 'Fabio', 'Renan', 'Robson', 'Simone', 'Vinicius']
-    
+
+    motoristas = ['Denilson', 'Fabio', 'Renan', 'Robson', 'Simone', 'Vinicius', 'Equipe']
+
     if motorista:
-        c.execute('SELECT data, motorista, A, B, C, D, E, extras, observacao, total FROM logistica WHERE motorista = ? ORDER BY data DESC', (motorista,))
+        c.execute('''
+            SELECT data, motorista, A, B, C, D, E, extras, observacao, total 
+            FROM logistica 
+            WHERE motorista = ? 
+            ORDER BY data DESC
+        ''', (motorista,))
     else:
-        c.execute('SELECT data, motorista, A, B, C, D, E, extras, observacao, total FROM logistica ORDER BY data DESC')
-    
+        c.execute('''
+            SELECT data, motorista, A, B, C, D, E, extras, observacao, total 
+            FROM logistica 
+            ORDER BY data DESC
+        ''')
+
     registros = c.fetchall()
     conn.close()
 
-    total_geral = sum(int(r[9]) for r in registros)
-    
-    # Se um motorista estiver filtrado, a média é só dele
+    total_geral = sum([int(r[9]) for r in registros]) if registros else 0
+
     if motorista:
-        media = total_geral
+        media = total_geral  # média do motorista único
     else:
-        media = total_geral / len(motoristas) if motoristas else 0
+        media = round(total_geral / len(motoristas), 1) if motoristas else 0
 
-    return render_template('historico_logistica.html', registros=registros, motorista=motorista, motoristas=motoristas, total_geral=total_geral, media=media)
+    return render_template(
+        'historico_logistica.html',
+        registros=registros,
+        motorista=motorista,
+        motoristas=motoristas,
+        total_geral=total_geral,
+        media=media
+    )
 
+
+
+@app.route('/historico_loja')
+def historico_loja():
+    conn = sqlite3.connect('pontos.db')
+    c = conn.cursor()
+    c.execute('SELECT data, A, B, C, D, E, extras, observacao, total FROM loja ORDER BY data DESC')
+    registros = c.fetchall()
+    conn.close()
+
+    total_geral = sum([r[8] for r in registros]) if registros else 0  # índice 8 = campo 'total'
+    media = round(total_geral / len(registros), 1) if registros else 0
+
+    return render_template('historico_loja.html', registros=registros, total_geral=total_geral, media=media)
 
 # =======================================================================
 # COMERCIAL
@@ -386,20 +416,20 @@ def comercial():
     ''')
 
     # 🔒 Lista fixa de vendedores
-    vendedores = ['EVERTON', 'MARCELO', 'PEDRO', 'SILVANA', 'TIAGO', 'RODOLFO', 'MARCOS', 'THYAGO']
+    vendedores = ['EVERTON', 'MARCELO', 'PEDRO', 'SILVANA', 'TIAGO', 'RODOLFO', 'MARCOS', 'THYAGO', 'EQUIPE']
 
     if request.method == 'POST':
         data = request.form['data']
         vendedor = request.form['vendedor']
-        A = int(request.form.get('A', 0))
-        B = int(request.form.get('B', 0))
-        C = int(request.form.get('C', 0))
-        D = int(request.form.get('D', 0))
-        E = int(request.form.get('E', 0))
+        A = safe_int(request.form.get('A'))
+        B = safe_int(request.form.get('B'))
+        C = safe_int(request.form.get('C'))
+        D = safe_int(request.form.get('D'))
+        E = safe_int(request.form.get('E'))
         extras = request.form.getlist('extras')
         observacao = request.form.get('observacao', '')
 
-        total = (A * 2) + B + C - D - E
+        total = A + B + C + D + E
         if 'meta' in extras:
             total += 2
         if 'equipe90' in extras:
@@ -420,35 +450,43 @@ def comercial():
     return render_template('comercial.html', vendedores=vendedores)
 
 
+
 @app.route('/historico_comercial')
 def historico_comercial():
-    vendedor = request.args.get('vendedor')
     conn = sqlite3.connect('pontos.db')
-    cur = conn.cursor()
+    c = conn.cursor()
 
+    vendedor = request.args.get('vendedor', '')
+
+    # Busca todos ou filtra por vendedor
     if vendedor:
-        cur.execute("SELECT * FROM comercial WHERE vendedor = ? ORDER BY data DESC", (vendedor,))
+        c.execute("SELECT * FROM comercial WHERE vendedor = ? ORDER BY data DESC", (vendedor,))
     else:
-        cur.execute("SELECT * FROM comercial ORDER BY data DESC")
-    registros = cur.fetchall()
+        c.execute("SELECT * FROM comercial ORDER BY data DESC")
+    
+    registros = c.fetchall()
 
-    # 🔒 Lista fixa para o filtro, igual do formulário
-    vendedores = ['EVERTON', 'MARCELO', 'PEDRO', 'SILVANA', 'TIAGO', 'RODOLFO', 'MARCOS', 'THYAGO']
+    # Cálculo do total geral
+    total_geral = sum([r[10] for r in registros])  # campo total é o índice 10
+    vendedores_unicos = set([r[2] for r in registros])  # índice 2 é vendedor
 
-    # Soma total e média
-    total_geral = sum(int(r[10]) for r in registros)
-    vendedores_unicos = list({r[2] for r in registros})  # r[2] = vendedor
-    media = round(total_geral / len(vendedores_unicos), 2) if vendedores_unicos else 0
+    # Média por vendedor
+    media = total_geral / len(vendedores_unicos) if vendedores_unicos else 0
 
-    cur.close()
+    # Lista de vendedores para o filtro
+    c.execute("SELECT DISTINCT vendedor FROM comercial")
+    lista_vendedores = [row[0] for row in c.fetchall()]
+
     conn.close()
 
-    return render_template('historico_comercial.html',
-                           registros=registros,
-                           vendedor=vendedor,
-                           vendedores=vendedores,
-                           total_geral=total_geral,
-                           media=media)
+    return render_template(
+        'historico_comercial.html',
+        registros=registros,
+        total_geral=total_geral,
+        media=round(media, 1),
+        vendedores=lista_vendedores,
+        vendedor=vendedor
+    )
 
 @app.route('/zerar_tudo', methods=['POST'])
 def zerar_tudo():
