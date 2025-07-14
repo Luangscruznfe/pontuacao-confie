@@ -171,8 +171,9 @@ def enviar():
     observacao = request.form.get('observacao', '')
     data = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-     conn = get_db_connection()
-     c = conn.cursor()
+    conn = get_db_connection()
+    c = conn.cursor()
+
     c.execute('INSERT INTO pontuacoes (data, setor, obrigacao, pontuacao, observacao) VALUES (?, ?, ?, ?, ?)',
               (data, setor, obrigacao, pontuacao, observacao))
     conn.commit()
@@ -183,8 +184,8 @@ def enviar():
 
 @app.route('/historico')
 def historico():
-     conn = get_db_connection()
-     c = conn.cursor()
+    conn = get_db_connection()
+    c = conn.cursor()
     c.execute('SELECT data, setor, obrigacao, pontuacao, observacao FROM pontuacoes ORDER BY data DESC')
     registros = c.fetchall()
     conn.close()
@@ -223,7 +224,7 @@ def loja():
         total = A + B + C + D + E + extras_pontos
 
         conn = get_db_connection()
-     	c = conn.cursor()
+        c = conn.cursor()
         c.execute("INSERT INTO loja (data, A, B, C, D, E, extras, observacao, total) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                   (data, A, B, C, D, E, ','.join(extras), observacao, total))
         conn.commit()
@@ -232,7 +233,6 @@ def loja():
         return redirect('/loja')
 
     return render_template('loja.html')
-
 
 # =======================================================================
 # EXPEDIÇÃO
@@ -259,7 +259,7 @@ def expedicao():
         total = A + B + C + D + E + extras_pontos
 
         conn = get_db_connection()
-     	c = conn.cursor()
+        c = conn.cursor()
         c.execute("INSERT INTO expedicao (data, A, B, C, D, E, extras, observacao, total) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                   (data, A, B, C, D, E, ','.join(extras), observacao, total))
         conn.commit()
@@ -291,7 +291,7 @@ def logistica():
 
     c.execute('''
         CREATE TABLE IF NOT EXISTS logistica (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             data TEXT,
             motorista TEXT,
             A INTEGER,
@@ -318,7 +318,6 @@ def logistica():
         extras = request.form.getlist('extras')
         observacao = request.form.get('observacao', '')
 
-        # Corrigido: D e E já vêm negativos se for o caso, então apenas somamos
         total = A + B + C + D + E
         if 'meta' in extras:
             total += 2
@@ -327,20 +326,18 @@ def logistica():
 
         c.execute('''
             INSERT INTO logistica (data, motorista, A, B, C, D, E, extras, observacao, total)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ''', (data, motorista, A, B, C, D, E, ','.join(extras), observacao, total))
 
         conn.commit()
+        conn.close()
         flash("✅ Pontuação da logística registrada com sucesso!", "success")
         return redirect('/logistica')
 
     conn.close()
     return render_template('logistica.html', motoristas=motoristas)
 
-@app.route('/historico_logistica')
-def historico_logistica():
-    motorista = request.args.get('motorista', '')
-     conn = get_db_connection()
+	onnection()
      c = conn.cursor()
 
     motoristas = ['Denilson', 'Fabio', 'Renan', 'Robson', 'Simone', 'Vinicius', 'Equipe']
@@ -452,7 +449,6 @@ def comercial():
     return render_template('comercial.html', vendedores=vendedores)
 
 
-
 @app.route('/historico_comercial')
 def historico_comercial():
     conn = get_db_connection()
@@ -468,7 +464,7 @@ def historico_comercial():
         c.execute("SELECT * FROM comercial WHERE vendedor = ? ORDER BY data DESC", (vendedor,))
     else:
         c.execute("SELECT * FROM comercial ORDER BY data DESC")
-    
+
     registros = c.fetchall()
 
     # Cálculo do total geral e média por vendedor com ponto
@@ -493,7 +489,7 @@ def zerar_tudo():
     senha = request.form.get('senha')
     if senha == "confie123":  # ajuste para sua senha desejada
         conn = get_db_connection()
-    	c = conn.cursor()
+        c = conn.cursor()
         for tabela in ['loja', 'expedicao', 'logistica', 'comercial']:
             c.execute(f"DELETE FROM {tabela}")
         conn.commit()
@@ -503,6 +499,7 @@ def zerar_tudo():
         flash("❌ Senha incorreta. Ação cancelada.", "danger")
 
     return redirect('/')
+
 
 
 @app.route('/backup_db')
