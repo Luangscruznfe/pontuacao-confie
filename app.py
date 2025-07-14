@@ -482,7 +482,7 @@ def historico_comercial():
 
     # Cálculo do total geral e média (com base no número de registros)
     total_geral = sum([r[10] for r in registros])  # campo total = índice 10
-    media = total_geral / len(registros) if registros else 0
+    media = total_geral / 8
 
     conn.close()
 
