@@ -182,7 +182,7 @@ def enviar():
     conn = get_db_connection()
     c = conn.cursor()
 
-    c.execute('INSERT INTO pontuacoes (data, setor, obrigacao, pontuacao, observacao) VALUES (?, ?, ?, ?, ?)',
+    c.execute('INSERT INTO pontuacoes (data, setor, obrigacao, pontuacao, observacao) VALUES (%s, %s, %s, %s, %s)',
               (data, setor, obrigacao, pontuacao, observacao))
     conn.commit()
     conn.close()
@@ -233,7 +233,7 @@ def loja():
 
         conn = get_db_connection()
         c = conn.cursor()
-        c.execute("INSERT INTO loja (data, A, B, C, D, E, extras, observacao, total) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        c.execute("INSERT INTO loja (data, A, B, C, D, E, extras, observacao, total) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
                   (data, A, B, C, D, E, ','.join(extras), observacao, total))
         conn.commit()
         conn.close()
