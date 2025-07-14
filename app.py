@@ -338,16 +338,20 @@ def logistica():
     conn.close()
     return render_template('logistica.html', motoristas=motoristas)
 
-	onnection()
-     c = conn.cursor()
 
+@app.route('/historico_logistica')
+def historico_logistica():
+    conn = get_db_connection()
+    c = conn.cursor()
+
+    motorista = request.args.get('motorista', '')
     motoristas = ['Denilson', 'Fabio', 'Renan', 'Robson', 'Simone', 'Vinicius', 'Equipe']
 
     if motorista:
         c.execute('''
             SELECT data, motorista, A, B, C, D, E, extras, observacao, total 
             FROM logistica 
-            WHERE motorista = ? 
+            WHERE motorista = %s 
             ORDER BY data DESC
         ''', (motorista,))
     else:
@@ -363,7 +367,7 @@ def logistica():
     total_geral = sum([int(r[9]) for r in registros]) if registros else 0
 
     if motorista:
-        media = total_geral  # média do motorista único
+        media = total_geral
     else:
         media = round(total_geral / len(motoristas), 1) if motoristas else 0
 
@@ -375,6 +379,7 @@ def logistica():
         total_geral=total_geral,
         media=media
     )
+
 
 
 
