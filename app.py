@@ -108,9 +108,9 @@ def home():
     setores.append({
         'nome': 'Loja',
         'total_registros': len(loja_pontos),
-        'soma': sum(loja_pontos),
+        'soma': sum(loja_pontos) if loja_pontos else 0,
         'media': None,
-        'valor_grafico': sum(loja_pontos)
+        'valor_grafico': sum(loja_pontos) if loja_pontos else 0
     })
 
     # Expedição (sem média)
@@ -119,19 +119,20 @@ def home():
     setores.append({
         'nome': 'Expedição',
         'total_registros': len(expedicao_pontos),
-        'soma': sum(expedicao_pontos),
+        'soma': sum(expedicao_pontos) if expedicao_pontos else 0,
         'media': None,
-        'valor_grafico': sum(expedicao_pontos)
+        'valor_grafico': sum(expedicao_pontos) if expedicao_pontos else 0
     })
 
     # Logística (usa média)
     cur.execute("SELECT total FROM logistica")
     logistica_pontos = [row[0] for row in cur.fetchall()]
-    media_log = round(sum(logistica_pontos) / 6, 2) if logistica_pontos else 0  # 6 motoristas
+    soma_log = sum(logistica_pontos) if logistica_pontos else 0
+    media_log = round(soma_log / 6, 2) if soma_log else 0
     setores.append({
         'nome': 'Logística',
         'total_registros': len(logistica_pontos),
-        'soma': sum(logistica_pontos),
+        'soma': soma_log,
         'media': media_log,
         'valor_grafico': media_log
     })
@@ -139,11 +140,12 @@ def home():
     # Comercial (usa média)
     cur.execute("SELECT total FROM comercial")
     comercial_pontos = [row[0] for row in cur.fetchall()]
-    media_com = round(sum(comercial_pontos) / 8, 2) if comercial_pontos else 0  # 8 vendedores
+    soma_com = sum(comercial_pontos) if comercial_pontos else 0
+    media_com = round(soma_com / 8, 2) if soma_com else 0
     setores.append({
         'nome': 'Comercial',
         'total_registros': len(comercial_pontos),
-        'soma': sum(comercial_pontos),
+        'soma': soma_com,
         'media': media_com,
         'valor_grafico': media_com
     })
@@ -152,19 +154,18 @@ def home():
     conn.close()
 
     return render_template(
-    'home.html',
-    total_loja=setores[0]['total_registros'],
-    soma_loja=setores[0]['soma'],
-    total_expedicao=setores[1]['total_registros'],
-    soma_expedicao=setores[1]['soma'],
-    total_logistica=setores[2]['total_registros'],
-    soma_logistica=setores[2]['soma'],
-    media_logistica=setores[2]['media'],
-    total_comercial=setores[3]['total_registros'],
-    soma_comercial=setores[3]['soma'],
-    media_comercial=setores[3]['media']
-)
-
+        'home.html',
+        total_loja=setores[0]['total_registros'],
+        soma_loja=setores[0]['soma'],
+        total_expedicao=setores[1]['total_registros'],
+        soma_expedicao=setores[1]['soma'],
+        total_logistica=setores[2]['total_registros'],
+        soma_logistica=setores[2]['soma'],
+        media_logistica=setores[2]['media'],
+        total_comercial=setores[3]['total_registros'],
+        soma_comercial=setores[3]['soma'],
+        media_comercial=setores[3]['media']
+    )
 
 
 @app.route('/enviar', methods=['POST'])
