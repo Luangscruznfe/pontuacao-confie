@@ -5,6 +5,8 @@ from flask import flash, redirect, url_for
 from datetime import datetime
 import sqlite3
 import os
+import cloudinary
+import cloudinary.uploader
 
 app = Flask(__name__)
 app.secret_key = 'confie'
@@ -499,7 +501,33 @@ def zerar_tudo():
         flash("✅ Todas as pontuações foram zeradas com sucesso!", "success")
     else:
         flash("❌ Senha incorreta. Ação cancelada.", "danger")
+
     return redirect('/')
+
+
+@app.route('/backup_db')
+def backup_db():
+    caminho_db = 'pontos.db'
+
+    if not os.path.exists(caminho_db):
+        return "❌ Arquivo pontos.db não encontrado.", 404
+
+    try:
+        resultado = cloudinary.uploader.upload(
+            caminho_db,
+            resource_type='raw',
+            public_id=f'backups_pontuacao/pontos_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}',
+            use_filename=True,
+            unique_filename=False,
+            overwrite=False
+        )
+        return f"✅ Backup enviado com sucesso!<br><a href='{resultado['secure_url']}' target='_blank'>Abrir backup</a>"
+    except Exception as e:
+        return f"❌ Erro ao enviar backup: {str(e)}", 500
+
+
+
+
 
 
 if __name__ == '__main__':
