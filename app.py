@@ -11,13 +11,17 @@ import cloudinary.uploader
 app = Flask(__name__)
 app.secret_key = 'confie'
 
+# Caminho absoluto para o pontos.db
+DB_PATH = os.path.join(os.path.dirname(__file__), 'pontos.db')
+
+
 
 # =======================================================================
 # BANCO DE DADOS
 # =======================================================================
 def init_db():
-    if not os.path.exists('pontos.db'):
-        conn = sqlite3.connect('pontos.db')
+    if not os.path.exists(DB_PATH):
+        conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         c.execute('''
             CREATE TABLE IF NOT EXISTS pontuacoes (
@@ -93,7 +97,7 @@ def datetimeformat(value):
 
 @app.route('/')
 def home():
-    conn = sqlite3.connect('pontos.db')
+    conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
 
     setores = []
@@ -171,7 +175,7 @@ def enviar():
     observacao = request.form.get('observacao', '')
     data = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    conn = sqlite3.connect('pontos.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute('INSERT INTO pontuacoes (data, setor, obrigacao, pontuacao, observacao) VALUES (?, ?, ?, ?, ?)',
               (data, setor, obrigacao, pontuacao, observacao))
@@ -183,7 +187,7 @@ def enviar():
 
 @app.route('/historico')
 def historico():
-    conn = sqlite3.connect('pontos.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute('SELECT data, setor, obrigacao, pontuacao, observacao FROM pontuacoes ORDER BY data DESC')
     registros = c.fetchall()
@@ -222,7 +226,7 @@ def loja():
 
         total = A + B + C + D + E + extras_pontos
 
-        conn = sqlite3.connect('pontos.db')
+        conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         c.execute("INSERT INTO loja (data, A, B, C, D, E, extras, observacao, total) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                   (data, A, B, C, D, E, ','.join(extras), observacao, total))
@@ -258,7 +262,7 @@ def expedicao():
 
         total = A + B + C + D + E + extras_pontos
 
-        conn = sqlite3.connect('pontos.db')
+        conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         c.execute("INSERT INTO expedicao (data, A, B, C, D, E, extras, observacao, total) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                   (data, A, B, C, D, E, ','.join(extras), observacao, total))
@@ -272,7 +276,7 @@ def expedicao():
 
 @app.route('/historico_expedicao')
 def historico_expedicao():
-    conn = sqlite3.connect('pontos.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute('SELECT data, A, B, C, D, E, extras, observacao, total FROM expedicao ORDER BY data DESC')
     registros = c.fetchall()
@@ -286,7 +290,7 @@ def historico_expedicao():
 # Nova rota para a Logística com menu de motoristas e formulário de pontuação
 @app.route('/logistica', methods=['GET', 'POST'])
 def logistica():
-    conn = sqlite3.connect('pontos.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
     c.execute('''
@@ -340,7 +344,7 @@ def logistica():
 @app.route('/historico_logistica')
 def historico_logistica():
     motorista = request.args.get('motorista', '')
-    conn = sqlite3.connect('pontos.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
     motoristas = ['Denilson', 'Fabio', 'Renan', 'Robson', 'Simone', 'Vinicius', 'Equipe']
@@ -382,7 +386,7 @@ def historico_logistica():
 
 @app.route('/historico_loja')
 def historico_loja():
-    conn = sqlite3.connect('pontos.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute('SELECT data, A, B, C, D, E, extras, observacao, total FROM loja ORDER BY data DESC')
     registros = c.fetchall()
@@ -398,7 +402,7 @@ def historico_loja():
 # =======================================================================
 @app.route('/comercial', methods=['GET', 'POST'])
 def comercial():
-    conn = sqlite3.connect('pontos.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
     c.execute('''
@@ -455,7 +459,7 @@ def comercial():
 
 @app.route('/historico_comercial')
 def historico_comercial():
-    conn = sqlite3.connect('pontos.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
     vendedor = request.args.get('vendedor', '')
@@ -492,7 +496,7 @@ def historico_comercial():
 def zerar_tudo():
     senha = request.form.get('senha')
     if senha == "confie123":  # ajuste para sua senha desejada
-        conn = sqlite3.connect('pontos.db')
+        conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         for tabela in ['loja', 'expedicao', 'logistica', 'comercial']:
             c.execute(f"DELETE FROM {tabela}")
@@ -507,7 +511,7 @@ def zerar_tudo():
 
 @app.route('/backup_db')
 def backup_db():
-    caminho_db = 'pontos.db'
+    caminho_db = DB_PATH
 
     if not os.path.exists(caminho_db):
         return "❌ Arquivo pontos.db não encontrado.", 404
