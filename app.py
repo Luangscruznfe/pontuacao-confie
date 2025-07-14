@@ -1,9 +1,8 @@
 # sistema_pontuacao_flask.py
 
-from flask import Flask, render_template, request, redirect, jsonify
-from flask import flash, redirect, url_for
+from flask import Flask, render_template, request, redirect, flash, url_for
 from datetime import datetime
-import sqlite3
+import psycopg2
 import os
 import cloudinary
 import cloudinary.uploader
@@ -11,22 +10,18 @@ import cloudinary.uploader
 app = Flask(__name__)
 app.secret_key = 'confie'
 
-# Caminho absoluto para o pontos.db
-DB_PATH = os.path.join(os.path.dirname(__file__), 'pontos.db')
+# Conexão com o banco PostgreSQL no Render
+def get_db_connection():
+    return psycopg2.connect(os.environ['DATABASE_URL'])
 
-
-
-# =======================================================================
-# BANCO DE DADOS
-# =======================================================================
+# Inicializa o banco e cria as tabelas se não existirem
 def init_db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     c = conn.cursor()
 
-    # Cria as tabelas se não existirem
     c.execute('''
         CREATE TABLE IF NOT EXISTS pontuacoes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             data TEXT,
             setor TEXT,
             obrigacao TEXT,
@@ -36,7 +31,7 @@ def init_db():
     ''')
     c.execute('''
         CREATE TABLE IF NOT EXISTS loja (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             data TEXT,
             A INTEGER,
             B INTEGER,
@@ -50,7 +45,7 @@ def init_db():
     ''')
     c.execute('''
         CREATE TABLE IF NOT EXISTS expedicao (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             data TEXT,
             A INTEGER,
             B INTEGER,
@@ -64,7 +59,7 @@ def init_db():
     ''')
     c.execute('''
         CREATE TABLE IF NOT EXISTS logistica (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             data TEXT,
             motorista TEXT,
             A INTEGER,
@@ -79,7 +74,7 @@ def init_db():
     ''')
     c.execute('''
         CREATE TABLE IF NOT EXISTS comercial (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             data TEXT,
             vendedor TEXT,
             A INTEGER,
@@ -96,47 +91,16 @@ def init_db():
     conn.commit()
     conn.close()
 
-# =======================================================================
-# OBRIGAÇÕES POR SETOR
-# =======================================================================
-OBRIGACOES = {
-    'Logistica': [
-        ('Entregas concluidas 100%', '(+)1 ponto/dia'),
-        ('Veiculo limpo e organizado', '(+)1 ponto/dia'),
-        ('Acerto organizado e correto', '(+)1 ponto/dia'),
-        ('Questões de jornada (atrasos, ponto, etc)', '(-)2 pontos/dia'),
-        ('Erro do entregador', '(-)1 ponto/dia')
-    ],
-    'Comercial': [
-        ('Meta diária batida/conversão 70%', '(+)2 ponto/dia'),
-        ('Cliente novo/Prospecção', '(+)1 ponto/dia'),
-        ('Erro de pedido ou cliente insatisfeito', '(-)1 ponto/dia'),
-        ('Inadimplência', '(-)1 ponto/dia')
-    ]
-}
-
-# =======================================================================
-# ROTAS PADRÕES
-# =======================================================================
-# Registrar filtro para formatar data
-@app.template_filter('datetimeformat')
-def datetimeformat(value):
-    try:
-        return datetime.strptime(value, "%Y-%m-%d").strftime("%d/%m/%Y")
-    except:
-        return value
-
-
 @app.route('/')
 def home():
-    conn = sqlite3.connect(DB_PATH)
-    cur = conn.cursor()
+    conn = get_db_connection()
+    c = conn.cursor()
 
     setores = []
 
     # Loja (sem média)
-    cur.execute("SELECT total FROM loja")
-    loja_pontos = [row[0] for row in cur.fetchall()]
+    c.execute("SELECT total FROM loja")
+    loja_pontos = [row[0] for row in c.fetchall()]
     setores.append({
         'nome': 'Loja',
         'total_registros': len(loja_pontos),
@@ -146,8 +110,8 @@ def home():
     })
 
     # Expedição (sem média)
-    cur.execute("SELECT total FROM expedicao")
-    expedicao_pontos = [row[0] for row in cur.fetchall()]
+    c.execute("SELECT total FROM expedicao")
+    expedicao_pontos = [row[0] for row in c.fetchall()]
     setores.append({
         'nome': 'Expedição',
         'total_registros': len(expedicao_pontos),
@@ -157,8 +121,8 @@ def home():
     })
 
     # Logística (usa média)
-    cur.execute("SELECT total FROM logistica")
-    logistica_pontos = [row[0] for row in cur.fetchall()]
+    c.execute("SELECT total FROM logistica")
+    logistica_pontos = [row[0] for row in c.fetchall()]
     soma_log = sum(logistica_pontos) if logistica_pontos else 0
     media_log = round(soma_log / 6, 2) if soma_log else 0
     setores.append({
@@ -170,8 +134,8 @@ def home():
     })
 
     # Comercial (usa média)
-    cur.execute("SELECT total FROM comercial")
-    comercial_pontos = [row[0] for row in cur.fetchall()]
+    c.execute("SELECT total FROM comercial")
+    comercial_pontos = [row[0] for row in c.fetchall()]
     soma_com = sum(comercial_pontos) if comercial_pontos else 0
     media_com = round(soma_com / 8, 2) if soma_com else 0
     setores.append({
@@ -182,7 +146,7 @@ def home():
         'valor_grafico': media_com
     })
 
-    cur.close()
+    c.close()
     conn.close()
 
     return render_template(
@@ -199,7 +163,6 @@ def home():
         media_comercial=setores[3]['media']
     )
 
-
 @app.route('/enviar', methods=['POST'])
 def enviar():
     setor = request.form['setor']
@@ -208,8 +171,8 @@ def enviar():
     observacao = request.form.get('observacao', '')
     data = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
+     conn = get_db_connection()
+     c = conn.cursor()
     c.execute('INSERT INTO pontuacoes (data, setor, obrigacao, pontuacao, observacao) VALUES (?, ?, ?, ?, ?)',
               (data, setor, obrigacao, pontuacao, observacao))
     conn.commit()
@@ -220,8 +183,8 @@ def enviar():
 
 @app.route('/historico')
 def historico():
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
+     conn = get_db_connection()
+     c = conn.cursor()
     c.execute('SELECT data, setor, obrigacao, pontuacao, observacao FROM pontuacoes ORDER BY data DESC')
     registros = c.fetchall()
     conn.close()
@@ -259,8 +222,8 @@ def loja():
 
         total = A + B + C + D + E + extras_pontos
 
-        conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
+        conn = get_db_connection()
+     	c = conn.cursor()
         c.execute("INSERT INTO loja (data, A, B, C, D, E, extras, observacao, total) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                   (data, A, B, C, D, E, ','.join(extras), observacao, total))
         conn.commit()
@@ -295,8 +258,8 @@ def expedicao():
 
         total = A + B + C + D + E + extras_pontos
 
-        conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
+        conn = get_db_connection()
+     	c = conn.cursor()
         c.execute("INSERT INTO expedicao (data, A, B, C, D, E, extras, observacao, total) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                   (data, A, B, C, D, E, ','.join(extras), observacao, total))
         conn.commit()
@@ -309,7 +272,7 @@ def expedicao():
 
 @app.route('/historico_expedicao')
 def historico_expedicao():
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     c = conn.cursor()
     c.execute('SELECT data, A, B, C, D, E, extras, observacao, total FROM expedicao ORDER BY data DESC')
     registros = c.fetchall()
@@ -323,7 +286,7 @@ def historico_expedicao():
 # Nova rota para a Logística com menu de motoristas e formulário de pontuação
 @app.route('/logistica', methods=['GET', 'POST'])
 def logistica():
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     c = conn.cursor()
 
     c.execute('''
@@ -377,8 +340,8 @@ def logistica():
 @app.route('/historico_logistica')
 def historico_logistica():
     motorista = request.args.get('motorista', '')
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
+     conn = get_db_connection()
+     c = conn.cursor()
 
     motoristas = ['Denilson', 'Fabio', 'Renan', 'Robson', 'Simone', 'Vinicius', 'Equipe']
 
@@ -419,7 +382,7 @@ def historico_logistica():
 
 @app.route('/historico_loja')
 def historico_loja():
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     c = conn.cursor()
     c.execute('SELECT data, A, B, C, D, E, extras, observacao, total FROM loja ORDER BY data DESC')
     registros = c.fetchall()
@@ -435,7 +398,7 @@ def historico_loja():
 # =======================================================================
 @app.route('/comercial', methods=['GET', 'POST'])
 def comercial():
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     c = conn.cursor()
 
     c.execute('''
@@ -492,7 +455,7 @@ def comercial():
 
 @app.route('/historico_comercial')
 def historico_comercial():
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_db_connection()
     c = conn.cursor()
 
     vendedor = request.args.get('vendedor', '')
@@ -529,8 +492,8 @@ def historico_comercial():
 def zerar_tudo():
     senha = request.form.get('senha')
     if senha == "confie123":  # ajuste para sua senha desejada
-        conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
+        conn = get_db_connection()
+    	c = conn.cursor()
         for tabela in ['loja', 'expedicao', 'logistica', 'comercial']:
             c.execute(f"DELETE FROM {tabela}")
         conn.commit()
@@ -569,8 +532,6 @@ def criar_banco():
         return "✅ Banco de dados criado com sucesso!"
     except Exception as e:
         return f"❌ Erro ao criar banco: {str(e)}"
-
-init_db()
 
 if __name__ == '__main__':
         app.run(debug=True)
