@@ -20,49 +20,80 @@ DB_PATH = os.path.join(os.path.dirname(__file__), 'pontos.db')
 # BANCO DE DADOS
 # =======================================================================
 def init_db():
-    if not os.path.exists(DB_PATH):
-        conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS pontuacoes (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                data TEXT,
-                setor TEXT,
-                obrigacao TEXT,
-                pontuacao TEXT,
-                observacao TEXT
-            )
-        ''')
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS loja (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                data TEXT,
-                A INTEGER,
-                B INTEGER,
-                C INTEGER,
-                D INTEGER,
-                E INTEGER,
-                extras TEXT,
-                observacao TEXT,
-                total INTEGER
-            )
-        ''')
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS expedicao (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                data TEXT,
-                A INTEGER,
-                B INTEGER,
-                C INTEGER,
-                D INTEGER,
-                E INTEGER,
-                extras TEXT,
-                observacao TEXT,
-                total INTEGER
-            )
-        ''')
-        conn.commit()
-        conn.close()
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS pontuacoes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            data TEXT,
+            setor TEXT,
+            obrigacao TEXT,
+            pontuacao TEXT,
+            observacao TEXT
+        )
+    ''')
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS loja (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            data TEXT,
+            A INTEGER,
+            B INTEGER,
+            C INTEGER,
+            D INTEGER,
+            E INTEGER,
+            extras TEXT,
+            observacao TEXT,
+            total INTEGER
+        )
+    ''')
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS expedicao (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            data TEXT,
+            A INTEGER,
+            B INTEGER,
+            C INTEGER,
+            D INTEGER,
+            E INTEGER,
+            extras TEXT,
+            observacao TEXT,
+            total INTEGER
+        )
+    ''')
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS logistica (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            data TEXT,
+            motorista TEXT,
+            A INTEGER,
+            B INTEGER,
+            C INTEGER,
+            D INTEGER,
+            E INTEGER,
+            extras TEXT,
+            observacao TEXT,
+            total INTEGER
+        )
+    ''')
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS comercial (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            data TEXT,
+            vendedor TEXT,
+            A INTEGER,
+            B INTEGER,
+            C INTEGER,
+            D INTEGER,
+            E INTEGER,
+            extras TEXT,
+            observacao TEXT,
+            total INTEGER
+        )
+    ''')
+
+    conn.commit()
+    conn.close()
 
 # =======================================================================
 # OBRIGAÇÕES POR SETOR
