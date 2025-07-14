@@ -163,6 +163,7 @@ def home():
         media_comercial=setores[3]['media']
     )
 
+
 @app.route('/enviar', methods=['POST'])
 def enviar():
     setor = request.form['setor']
