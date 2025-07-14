@@ -525,8 +525,13 @@ def backup_db():
     except Exception as e:
         return f"❌ Erro ao enviar backup: {str(e)}", 500
 
-
-
+@app.route('/criar_banco')
+def criar_banco():
+    try:
+        init_db()
+        return "✅ Banco de dados criado com sucesso!"
+    except Exception as e:
+        return f"❌ Erro ao criar banco: {str(e)}"
 
 
 
