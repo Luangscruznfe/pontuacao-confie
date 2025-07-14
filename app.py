@@ -2,6 +2,7 @@
 
 from flask import Flask, render_template, request, redirect, flash, url_for
 from datetime import datetime
+from decimal import Decimal, ROUND_HALF_UP
 import psycopg2
 import os
 import cloudinary
@@ -482,7 +483,7 @@ def historico_comercial():
 
     # Cálculo do total geral e média (com base no número de registros)
     total_geral = sum([r[10] for r in registros])  # campo total = índice 10
-    media = total_geral / 8
+    media = Decimal(total_geral / 8).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
     conn.close()
 
