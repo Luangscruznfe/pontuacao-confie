@@ -491,7 +491,7 @@ def historico_comercial():
         'historico_comercial.html',
         registros=registros,
         total_geral=total_geral,
-        media=round(media, 1),
+        media=media,
         vendedores=lista_vendedores,
         vendedor=vendedor
     )
