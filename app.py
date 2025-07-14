@@ -91,6 +91,13 @@ def init_db():
     conn.commit()
     conn.close()
 
+@app.template_filter('datetimeformat')
+def datetimeformat(value, format='%d/%m/%Y'):
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").strftime(format)
+    except:
+        return value
+
 @app.route('/')
 def home():
     conn = get_db_connection()
@@ -506,27 +513,6 @@ def zerar_tudo():
 
     return redirect('/')
 
-
-
-@app.route('/backup_db')
-def backup_db():
-    caminho_db = DB_PATH
-
-    if not os.path.exists(caminho_db):
-        return "❌ Arquivo pontos.db não encontrado.", 404
-
-    try:
-        resultado = cloudinary.uploader.upload(
-            caminho_db,
-            resource_type='raw',
-            public_id=f'backups_pontuacao/pontos_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}',
-            use_filename=True,
-            unique_filename=False,
-            overwrite=False
-        )
-        return f"✅ Backup enviado com sucesso!<br><a href='{resultado['secure_url']}' target='_blank'>Abrir backup</a>"
-    except Exception as e:
-        return f"❌ Erro ao enviar backup: {str(e)}", 500
 
 @app.route('/criar_banco')
 def criar_banco():
