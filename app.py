@@ -413,7 +413,7 @@ def comercial():
 
     c.execute('''
         CREATE TABLE IF NOT EXISTS comercial (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
             data TEXT,
             vendedor TEXT,
             A INTEGER,
