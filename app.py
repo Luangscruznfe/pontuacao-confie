@@ -23,6 +23,7 @@ def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
+    # Cria as tabelas se não existirem
     c.execute('''
         CREATE TABLE IF NOT EXISTS pontuacoes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -569,8 +570,7 @@ def criar_banco():
     except Exception as e:
         return f"❌ Erro ao criar banco: {str(e)}"
 
-
+init_db()
 
 if __name__ == '__main__':
-    init_db()
-    app.run(debug=True)
+        app.run(debug=True)
