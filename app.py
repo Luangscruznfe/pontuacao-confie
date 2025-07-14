@@ -375,9 +375,13 @@ def historico_logistica():
     total_geral = sum([int(r[9]) for r in registros]) if registros else 0
 
     if motorista:
-        media = total_geral
+        media = Decimal(total_geral).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
     else:
-        media = round(total_geral / len(motoristas), 1) if motoristas else 0
+        motoristas_reais = [m for m in motoristas if m != 'Equipe']
+        media = (
+            Decimal(total_geral / len(motoristas_reais)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            if motoristas_reais else Decimal('0.00')
+        )
 
     return render_template(
         'historico_logistica.html',
@@ -387,8 +391,6 @@ def historico_logistica():
         total_geral=total_geral,
         media=media
     )
-
-
 
 
 @app.route('/historico_loja')
