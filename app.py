@@ -261,7 +261,7 @@ def expedicao():
 
         conn = get_db_connection()
         c = conn.cursor()
-        c.execute("INSERT INTO expedicao (data, A, B, C, D, E, extras, observacao, total) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        c.execute("INSERT INTO expedicao (data, A, B, C, D, E, extras, observacao, total) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
                   (data, A, B, C, D, E, ','.join(extras), observacao, total))
         conn.commit()
         conn.close()
@@ -442,7 +442,7 @@ def comercial():
 
         c.execute('''
             INSERT INTO comercial (data, vendedor, A, B, C, D, E, extras, observacao, total)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ''', (data, vendedor, A, B, C, D, E, ','.join(extras), observacao, total))
 
         conn.commit()
@@ -467,7 +467,7 @@ def historico_comercial():
 
     # Busca registros com ou sem filtro
     if vendedor:
-        c.execute("SELECT * FROM comercial WHERE vendedor = ? ORDER BY data DESC", (vendedor,))
+        c.execute("SELECT * FROM comercial WHERE vendedor = %s ORDER BY data DESC", (vendedor,))
     else:
         c.execute("SELECT * FROM comercial ORDER BY data DESC")
 
