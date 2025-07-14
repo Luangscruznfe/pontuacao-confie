@@ -480,10 +480,9 @@ def historico_comercial():
 
     registros = c.fetchall()
 
-    # Cálculo do total geral e média por vendedor com ponto
+    # Cálculo do total geral e média (com base no número de registros)
     total_geral = sum([r[10] for r in registros])  # campo total = índice 10
-    vendedores_com_ponto = set([r[2] for r in registros])  # índice 2 = vendedor
-    media = total_geral / len(vendedores_com_ponto) if vendedores_com_ponto else 0
+    media = total_geral / len(registros) if registros else 0
 
     conn.close()
 
