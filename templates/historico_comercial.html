@@ -18,19 +18,19 @@
 
   <table class="table table-bordered table-striped">
     <thead>
-      <tr>
-        <th>Data</th>
-        <th>Vendedor</th>
-        <th>Meta diária batida <span class="setor-supervisor">(Supervisor)</span></th>
-        <th>Cliente novo <span class="setor-gerente-comercial">(Ger. Comercial)</span></th>
-        <th>Erro de pedido <span class="setor-faturamento">(Faturamento)</span></th>
-        <th>Inadimplência <span class="setor-financeiro">(Financeiro)</span></th>
-        <th>Relatório fora do horário <span class="setor-rh">(RH)</span></th>
-        <th>Extras</th>
-        <th>Total</th>
-        <th>Observação</th>
-      </tr>
-    </thead>
+  <tr>
+    <th>Data</th>
+    <th>Vendedor</th>
+    <th>Meta diária batida / Conversão 70% <span class="setor-supervisor">(Supervisor)</span></th>
+    <th>Cliente novo / Prospecção <span class="setor-gerente-comercial">(Ger. Comercial)</span></th>
+    <th>Erro de pedido ou cliente insatisfeito <span class="setor-faturamento">(Faturamento)</span></th>
+    <th>Inadimplência <span class="setor-financeiro">(Financeiro)</span></th>
+    <th>Relatório diário em desacordo e fora do horário comercial <span class="setor-rh">(RH)</span></th>
+    <th>Extras</th>
+    <th>Total</th>
+    <th>Observação</th>
+  </tr>
+</thead>
     <tbody>
       {% for r in registros %}
       <tr>
