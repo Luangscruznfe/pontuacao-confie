@@ -695,7 +695,7 @@ def baixar_relatorio_excel():
 
         total_geral = 0
         for linha in dados:
-            ws.append(linha)
+            ws.append([cell if cell is not None and str(cell).lower() != 'nan' else '' for cell in linha])
             if 'total' in colunas:
                 total_geral += linha[colunas.index('total')]
 
