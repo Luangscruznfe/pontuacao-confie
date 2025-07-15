@@ -5,23 +5,17 @@
 {% block content %}
 <style>
 .card {
-  background-color: rgba(13, 27, 42, 0.8); /* azul escuro com transparência */
+  background-color: rgba(13, 27, 42, 0.8);
   color: white;
 }
+.setor-supervisor {
+  color: #00bcd4;
+  font-weight: bold;
+  display: block;
+  margin-bottom: -4px;
+}
 .setor-gerente {
-  color: #b58900;
-  font-weight: bold;
-  display: block;
-  margin-bottom: -4px;
-}
-.setor-rh {
-  color: #6c5ce7;
-  font-weight: bold;
-  display: block;
-  margin-bottom: -4px;
-}
-.setor-financeiro {
-  color: #e74c3c;
+  color: #bdc3c7;
   font-weight: bold;
   display: block;
   margin-bottom: -4px;
@@ -32,14 +26,14 @@
   display: block;
   margin-bottom: -4px;
 }
-.setor-supervisor {
-  color: #3498db;
+.setor-financeiro {
+  color: #e74c3c;
   font-weight: bold;
   display: block;
   margin-bottom: -4px;
 }
-.setor-gerente-comercial {
-  color: #95a5a6;
+.setor-rh {
+  color: #8e44ad;
   font-weight: bold;
   display: block;
   margin-bottom: -4px;
@@ -73,43 +67,33 @@
 
     <div class="p-3 mb-4">
       <div class="form-check mb-2">
+        <span class="setor-supervisor">Supervisor</span>
         <input class="form-check-input" type="checkbox" name="A" value="2" id="A">
-        <label class="form-check-label" for="A">
-          <strong>Meta diária batida / Conversão 70%</strong><br>
-          <span class="setor-supervisor">(Supervisor)</span>
-        </label>
+        <label class="form-check-label" for="A">Meta diária batida / Conversão 70% (+2)</label>
       </div>
 
       <div class="form-check mb-2">
+        <span class="setor-gerente">Ger. Comercial</span>
         <input class="form-check-input" type="checkbox" name="B" value="1" id="B">
-        <label class="form-check-label" for="B">
-          <strong>Cliente novo / Prospecção</strong><br>
-          <span class="setor-gerente-comercial">(Ger. Comercial)</span>
-        </label>
+        <label class="form-check-label" for="B">Cliente novo / Prospecção (+1)</label>
       </div>
 
       <div class="form-check mb-2">
+        <span class="setor-faturamento">Faturamento</span>
         <input class="form-check-input" type="checkbox" name="C" value="-1" id="C">
-        <label class="form-check-label" for="C">
-          <strong>Erro de pedido ou cliente insatisfeito</strong><br>
-          <span class="setor-faturamento">(Faturamento)</span>
-        </label>
+        <label class="form-check-label" for="C">Erro de pedido ou cliente insatisfeito (-1)</label>
       </div>
 
       <div class="form-check mb-2">
+        <span class="setor-financeiro">Financeiro</span>
         <input class="form-check-input" type="checkbox" name="D" value="-1" id="D">
-        <label class="form-check-label" for="D">
-          <strong>Inadimplência</strong><br>
-          <span class="setor-financeiro">(Financeiro)</span>
-        </label>
+        <label class="form-check-label" for="D">Inadimplência (-1)</label>
       </div>
 
       <div class="form-check mb-3">
-        <input class="form-check-input" type="checkbox" name="E" value="-1" id="E">
-        <label class="form-check-label" for="E">
-          <strong>Relatório diário em desacordo ou fora do horário comercial</strong><br>
-          <span class="setor-rh">(RH)</span>
-        </label>
+        <span class="setor-rh">RH</span>
+        <input class="form-check-input" type="checkbox" name="E" value="-2" id="E">
+        <label class="form-check-label" for="E">Relatório diário em desacordo ou fora do horário comercial (-2)</label>
       </div>
     </div>
 
