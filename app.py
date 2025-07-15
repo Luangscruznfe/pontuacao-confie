@@ -634,8 +634,39 @@ def baixar_relatorio_excel():
     c = conn.cursor()
 
     tabelas = ['loja', 'expedicao', 'logistica', 'comercial', 'pontuacoes']
+    nomes_formatados = {
+        'loja': {
+            'A': 'Organização da loja (Gerente ADM)',
+            'B': 'Pontualidade (RH)',
+            'C': 'Fechamento do caixa (Financeiro)',
+            'D': 'Não postar em rede social (RH)',
+            'E': 'Validade / Avaria (Gerente ADM)'
+        },
+        'expedicao': {
+            'A': 'Organização estoque (Gerente ADM)',
+            'B': 'Separação correta (Faturamento)',
+            'C': 'Faturamento OK (Financeiro)',
+            'D': 'Erros / Devoluções (Financeiro)',
+            'E': 'Finalização após horário'
+        },
+        'logistica': {
+            'A': 'Separação Correta',
+            'B': 'Entrega Realizada',
+            'C': 'Roteiro Otimizado',
+            'D': 'Veículo limpo/organizado',
+            'E': 'Sem reclamações'
+        },
+        'comercial': {
+            'A': 'Acompanhamento pedidos',
+            'B': 'Prospecção ativa',
+            'C': 'Metas diárias',
+            'D': 'Ajustes manuais',
+            'E': 'Participação reuniões'
+        }
+    }
+
     wb = Workbook()
-    wb.remove(wb.active)  # remove a planilha padrão
+    wb.remove(wb.active)
 
     for tabela in tabelas:
         c.execute(f"SELECT * FROM {tabela}")
@@ -646,7 +677,15 @@ def baixar_relatorio_excel():
             continue
 
         ws = wb.create_sheet(title=tabela.capitalize())
-        ws.append(colunas)
+
+        # Substitui cabeçalhos A-E por nomes amigáveis
+        headers = []
+        for col in colunas:
+            if tabela in nomes_formatados and col.upper() in nomes_formatados[tabela]:
+                headers.append(nomes_formatados[tabela][col.upper()])
+            else:
+                headers.append(col.capitalize())
+        ws.append(headers)
 
         # Estiliza cabeçalho
         for col in ws[1]:
@@ -654,33 +693,44 @@ def baixar_relatorio_excel():
             col.fill = PatternFill(start_color="1f4e78", end_color="1f4e78", fill_type="solid")
             col.alignment = Alignment(horizontal="center", vertical="center")
 
-        # Adiciona os dados
+        total_geral = 0
         for linha in dados:
             ws.append(linha)
+            if 'total' in colunas:
+                total_geral += linha[colunas.index('total')]
 
-        # Bordas
+        # Adiciona linha de total se tiver campo 'total'
+        if 'total' in colunas:
+            idx_total = colunas.index('total') + 1
+            ws.append([""] * (idx_total - 1) + ["Total Geral:", total_geral])
+
+            ultima_linha = ws.max_row
+            ws[f"{chr(64 + idx_total)}{ultima_linha}"].font = Font(bold=True, color="1f4e78")
+
+        # Bordas e alinhamento
         thin = Side(border_style="thin", color="999999")
         for row in ws.iter_rows(min_row=1, max_row=ws.max_row, max_col=ws.max_column):
             for cell in row:
                 cell.border = Border(left=thin, right=thin, top=thin, bottom=thin)
                 cell.alignment = Alignment(horizontal="left", vertical="top", wrap_text=True)
 
-        # Ajusta largura das colunas automaticamente
+        # Ajusta largura das colunas
         for col in ws.columns:
-            max_length = max(len(str(cell.value)) if cell.value is not None else 0 for cell in col)
-            ws.column_dimensions[col[0].column_letter].width = max_length + 2
+            max_len = max(len(str(cell.value)) if cell.value else 0 for cell in col)
+            ws.column_dimensions[col[0].column_letter].width = max_len + 2
 
     conn.close()
 
-    # Salvar em memória e retornar como download
     output = io.BytesIO()
     wb.save(output)
     output.seek(0)
 
-    return send_file(output,
-                     as_attachment=True,
-                     download_name=f'relatorio_pontuacoes_{datetime.now().strftime("%Y-%m-%d")}.xlsx',
-                     mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name=f'relatorio_pontuacoes_{datetime.now().strftime("%Y-%m-%d")}.xlsx',
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
 
 if __name__ == '__main__':
         app.run(debug=True)
