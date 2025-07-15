@@ -1,58 +1,32 @@
-{% extends 'base.html' %}
+if request.method == 'POST':
+    data = request.form.get('data')
+    criterios = request.form.getlist('criterios')
+    observacao = request.form.get('observacao', '')
+    extras = request.form.getlist('extras')
 
-{% block title %}Registro Diário - Loja{% endblock %}
+    pesos = {'A': 1, 'B': 1, 'C': 1, 'D': -1, 'E': -2}
 
-{% block content %}
-<h2 class="mb-4">🛍️ Registro Diário - Loja</h2>
+    A = int('A' in criterios)
+    B = int('B' in criterios)
+    C = int('C' in criterios)
+    D = int('D' in criterios)
+    E = int('E' in criterios)
 
-<form method="POST">
-  <div class="mb-3">
-    <label for="data" class="form-label">Data:</label>
-    <input type="date" class="form-control" id="data" name="data" required>
-  </div>
+    # Pontos extras
+    extras_pontos = 0
+    if 'meta' in extras:
+        extras_pontos += 2
+    if 'equipe90' in extras:
+        extras_pontos += 1
 
-  <div class="mb-3">
-    <label class="form-label">A (+1): Organização da loja <span class="setor-gerente">(Gerente ADM)</span></label>
-    <input type="number" class="form-control" name="A" value="0" min="0">
-  </div>
+    total = sum([pesos[c] for c in criterios]) + extras_pontos
 
-  <div class="mb-3">
-    <label class="form-label">B (+1): Pontualidade <span class="setor-rh">(RH)</span></label>
-    <input type="number" class="form-control" name="B" value="0" min="0">
-  </div>
-
-  <div class="mb-3">
-    <label class="form-label">C (+1): Fechamento do caixa <span class="setor-financeiro">(Financeiro)</span></label>
-    <input type="number" class="form-control" name="C" value="0" min="0">
-  </div>
-
-  <div class="mb-3">
-    <label class="form-label">D (-1): Não postar em rede social <span class="setor-rh">(RH)</span></label>
-    <input type="number" class="form-control" name="D" value="0" max="0">
-  </div>
-
-  <div class="mb-3">
-    <label class="form-label">E (-2): Validade / Avaria <span class="setor-gerente">(Gerente ADM)</span></label>
-    <input type="number" class="form-control" name="E" value="0" max="0">
-  </div>
-
-  <!-- EXTRAS -->
-  <div class="form-check mb-1">
-    <input class="form-check-input" type="checkbox" name="extras" value="meta" id="meta">
-    <label class="form-check-label" for="meta">📈 Meta de faturamento (+2)</label>
-  </div>
-
-  <div class="form-check mb-3">
-    <input class="form-check-input" type="checkbox" name="extras" value="equipe90" id="equipe90">
-    <label class="form-check-label" for="equipe90">🤝 Equipe chegou a 90% de pontuação (+1)</label>
-  </div>
-
-  <div class="mb-3">
-    <label for="observacao" class="form-label">Observação:</label>
-    <textarea class="form-control" id="observacao" name="observacao" rows="3"></textarea>
-  </div>
-
-  <button type="submit" class="btn btn-success">Salvar</button>
-  <a href="/" class="btn btn-secondary ms-2">Voltar</a>
-</form>
-{% endblock %}
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute("INSERT INTO loja (data, A, B, C, D, E, extras, observacao, total) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+              (data, A, B, C, D, E, ','.join(extras), observacao, total))
+    conn.commit()
+    conn.close()
+    flash("✅ Pontuação registrada com sucesso!", "success")
+    fazer_backup_e_enviar()
+    return redirect('/loja')

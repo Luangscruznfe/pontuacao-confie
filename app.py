@@ -271,35 +271,43 @@ def safe_int(value):
 def loja():
     if request.method == 'POST':
         data = request.form.get('data')
-        A = safe_int(request.form.get('A'))
-        B = safe_int(request.form.get('B'))
-        C = safe_int(request.form.get('C'))
-        D = safe_int(request.form.get('D'))
-        E = safe_int(request.form.get('E'))
+        criterios = request.form.getlist('criterios')  # checkboxes A-E
         observacao = request.form.get('observacao', '')
         extras = request.form.getlist('extras')
 
-        # Pontos extras
-        extras_pontos = 0
-        if 'meta' in extras:
-            extras_pontos += 2
-        if 'equipe90' in extras:
-            extras_pontos += 1
+        # Pesos fixos de cada critério
+        pesos = {'A': 1, 'B': 1, 'C': 1, 'D': -1, 'E': -2}
 
-        total = A + B + C + D + E + extras_pontos
+        # Marcar 1 se foi selecionado, 0 se não
+        A = int('A' in criterios)
+        B = int('B' in criterios)
+        C = int('C' in criterios)
+        D = int('D' in criterios)
+        E = int('E' in criterios)
+
+        # Soma os pontos dos critérios
+        total = sum([pesos[c] for c in criterios])
+
+        # Pontos extras
+        if 'meta' in extras:
+            total += 2
+        if 'equipe90' in extras:
+            total += 1
 
         conn = get_db_connection()
         c = conn.cursor()
-        c.execute("INSERT INTO loja (data, A, B, C, D, E, extras, observacao, total) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                  (data, A, B, C, D, E, ','.join(extras), observacao, total))
+        c.execute("""
+            INSERT INTO loja (data, A, B, C, D, E, extras, observacao, total)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (data, A, B, C, D, E, ','.join(extras), observacao, total))
         conn.commit()
         conn.close()
         flash("✅ Pontuação registrada com sucesso!", "success")
         fazer_backup_e_enviar()
         return redirect('/loja')
 
-    
     return render_template('loja.html')
+
 
 # =======================================================================
 # EXPEDIÇÃO
