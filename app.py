@@ -628,8 +628,8 @@ def restaurar_backup():
 
     return render_template('restaurar_backup.html')
 
-@app.route('/relatorio_excel')
-def relatorio_excel():
+@app.route('/baixar_relatorio_excel')
+def baixar_relatorio_excel():
     conn = get_db_connection()
     c = conn.cursor()
 
