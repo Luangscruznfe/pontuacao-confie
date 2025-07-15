@@ -9,50 +9,58 @@
             <input type="date" class="form-control" id="data" name="data" required>
         </div>
 
-        <!-- A: Organização -->
-        <div class="form-group mt-3">
-            <label style="color: #f4a261;">A (+1): Organização e limpeza estoque <small style="color: #f4a261;">(Gerente ADM)</small></label>
-            <input type="number" class="form-control" name="A" value="0">
+        <div class="form-check mt-3">
+            <input class="form-check-input" type="number" name="A" id="A" value="0">
+            <label class="form-check-label" for="A">
+                <span style="color: #f4a261;">Ger. ADM</span><br>Organização e limpeza estoque (+1)
+            </label>
         </div>
 
-        <!-- B: Separação -->
-        <div class="form-group mt-3">
-            <label style="color: #2ecc71;">B (+1): Separação/conferência do mapa corretamente <small style="color: #2ecc71;">(Faturamento)</small></label>
-            <input type="number" class="form-control" name="B" value="0">
+        <div class="form-check mt-2">
+            <input class="form-check-input" type="number" name="B" id="B" value="0">
+            <label class="form-check-label" for="B">
+                <span style="color: #2ecc71;">Faturamento</span><br>Separação/conferência do mapa corretamente (+1)
+            </label>
         </div>
 
-        <!-- C: Faturamento OK -->
-        <div class="form-group mt-3">
-            <label style="color: #FF6666;">C (+1): Faturamento ok <small style="color: #FF6666;">(Financeiro)</small></label>
-            <input type="number" class="form-control" name="C" value="0">
+        <div class="form-check mt-2">
+            <input class="form-check-input" type="number" name="C" id="C" value="0">
+            <label class="form-check-label" for="C">
+                <span style="color: #FF6666;">Financeiro</span><br>Faturamento OK (+1)
+            </label>
         </div>
 
-        <!-- D: Erro ou devolução -->
-        <div class="form-group mt-3">
-            <label style="color: #FF6666;">D (-2): Erro ou devolução/falta na entrega <small style="color: #FF6666;">(Financeiro)</small></label>
-            <input type="number" class="form-control" name="D" value="0" max="0" placeholder="Ex: -2 se teve erro">
+        <div class="form-check mt-2">
+            <input class="form-check-input" type="number" name="D" id="D" value="0" max="0">
+            <label class="form-check-label" for="D">
+                <span style="color: #FF6666;">Financeiro</span><br>Erro ou devolução / falta na entrega (-2)
+            </label>
         </div>
 
-        <!-- E: Finalização após horário -->
-        <div class="form-group mt-3">
-            <label style="color: #c084fc;">E (-1): Finalização após horário (abaixo de 50k) <small style="color: #c084fc;">(RH)</small></label>
-            <input type="number" class="form-control" name="E" value="0" max="0" placeholder="Ex: -1 se houve atraso">
+        <div class="form-check mt-2">
+            <input class="form-check-input" type="number" name="E" id="E" value="0" max="0">
+            <label class="form-check-label" for="E">
+                <span style="color: #c084fc;">RH</span><br>Finalização após horário (abaixo de 50k) (-1)
+            </label>
         </div>
 
-        <!-- Extras -->
-        <div class="form-group mt-4">
-            <label class="form-check-label">⭐ Meta de faturamento (+2)</label><br>
-            <input type="checkbox" class="form-check-input" name="extras" value="meta"> Meta atingida<br>
-            <input type="checkbox" class="form-check-input" name="extras" value="equipe90"> Equipe 90%<br>
+        <hr>
+
+        <h5>Extras:</h5>
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="extras" value="meta" id="meta">
+            <label class="form-check-label" for="meta">📈 Meta de faturamento (+2)</label>
+        </div>
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" name="extras" value="equipe90" id="equipe90">
+            <label class="form-check-label" for="equipe90">🤝 Equipe chegou a 90% de pontuação (+1)</label>
         </div>
 
-        <!-- Observação -->
         <div class="form-group mt-3">
             <label>📝 Observação:</label>
             <textarea class="form-control" name="observacao" rows="3"></textarea>
         </div>
 
-        <!-- Botão -->
         <button type="submit" class="btn btn-success mt-4">✅ Salvar</button>
         <a href="/" class="btn btn-secondary mt-4 ms-2">🔙 Voltar</a>
     </form>

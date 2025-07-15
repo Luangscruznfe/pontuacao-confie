@@ -316,13 +316,13 @@ def loja():
 def expedicao():
     if request.method == 'POST':
         data = request.form.get('data')
-        A = safe_int(request.form.get('A'))  # Organização e limpeza estoque
-        B = safe_int(request.form.get('B'))  # Separação correta do mapa
-        C = safe_int(request.form.get('C'))  # Faturamento OK
-        D = safe_int(request.form.get('D'))  # Erros / Devoluções
-        E = safe_int(request.form.get('E'))  # Finalização após horário (abaixo de 50k)
-        extras = request.form.getlist('extras')
+        A = safe_int(request.form.get('A'))
+        B = safe_int(request.form.get('B'))
+        C = safe_int(request.form.get('C'))
+        D = safe_int(request.form.get('D'))
+        E = safe_int(request.form.get('E'))
         observacao = request.form.get('observacao', '')
+        extras = request.form.getlist('extras')
 
         # Pontos extras
         extras_pontos = 0
@@ -339,12 +339,12 @@ def expedicao():
                   (data, A, B, C, D, E, ','.join(extras), observacao, total))
         conn.commit()
         conn.close()
-
         flash("✅ Pontuação registrada com sucesso!", "success")
         fazer_backup_e_enviar()
         return redirect('/expedicao')
 
     return render_template('expedicao.html')
+
 
 @app.route('/historico_expedicao')
 def historico_expedicao():
