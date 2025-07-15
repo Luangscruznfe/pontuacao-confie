@@ -1,67 +1,69 @@
 {% extends 'base.html' %}
 
-{% block title %}Registro - Logística{% endblock %}
+{% block title %}Registro de Pontuação - Logística{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4">🚚 Registro de Pontuação - Logística</h2>
+  <h2 class="mb-4">🚛 Registro de Pontuação - Logística</h2>
 
-    <form method="POST">
-        <div class="mb-3">
-            <label for="data" class="form-label">Data:</label>
-            <input type="date" class="form-control" name="data" required>
-        </div>
+  <form method="POST">
+    <div class="mb-3">
+      <label for="data" class="form-label">Data:</label>
+      <input type="date" class="form-control" name="data" required>
+    </div>
 
-        <div class="mb-3">
-            <label for="motorista" class="form-label">Motorista:</label>
-            <select class="form-select" name="motorista" required>
-                <option value="">Selecione o motorista</option>
-                {% for nome in ['EVERTON', 'MARCELO', 'PEDRO', 'SILVANA', 'TIAGO', 'RODOLFO', 'MARCOS', 'THYAGO', 'EQUIPE'] %}
-                    <option value="{{ nome }}">{{ nome }}</option>
-                {% endfor %}
-            </select>
-        </div>
+    <div class="mb-3">
+      <label for="motorista" class="form-label">Motorista:</label>
+      <select class="form-select" name="motorista" required>
+        <option value="">Selecione o motorista</option>
+        <option>Denilson</option>
+        <option>Fabio</option>
+        <option>Renan</option>
+        <option>Robson</option>
+        <option>Simone</option>
+        <option>Vinicius</option>
+        <option>Equipe</option>
+      </select>
+    </div>
 
-        <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" name="criterios" value="A" id="A">
-            <label class="form-check-label" for="A"><span style="color: red; font-weight: bold;">Financeiro:</span> Entregas concluídas 100% (+1)</label>
-        </div>
-        <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" name="criterios" value="B" id="B">
-            <label class="form-check-label" for="B"><span style="color: #f1c40f; font-weight: bold;">Gerente ADM:</span> Veículo limpo e organizado (+1)</label>
-        </div>
-        <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" name="criterios" value="C" id="C">
-            <label class="form-check-label" for="C"><span style="color: red; font-weight: bold;">Financeiro:</span> Acerto organizado e correto (+1)</label>
-        </div>
-        <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" name="criterios" value="D" id="D">
-            <label class="form-check-label" for="D"><span style="color: #8e44ad; font-weight: bold;">RH:</span> Questões em relação à jornada (-1)</label>
-        </div>
-        <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" name="criterios" value="E" id="E">
-            <label class="form-check-label" for="E"><span style="color: green; font-weight: bold;">Faturamento:</span> Erro do entregador (-2)</label>
-        </div>
+    <div class="form-check mb-2">
+      <input class="form-check-input" type="checkbox" name="A" value="1" id="A">
+      <label class="form-check-label" for="A"><span class="text-danger">Financeiro:</span> Entregas concluídas 100% (+1)</label>
+    </div>
+    <div class="form-check mb-2">
+      <input class="form-check-input" type="checkbox" name="B" value="1" id="B">
+      <label class="form-check-label" for="B"><span class="text-warning">Gerente ADM:</span> Veículo limpo e organizado (+1)</label>
+    </div>
+    <div class="form-check mb-2">
+      <input class="form-check-input" type="checkbox" name="C" value="1" id="C">
+      <label class="form-check-label" for="C"><span class="text-danger">Financeiro:</span> Acerto organizado e correto (+1)</label>
+    </div>
+    <div class="form-check mb-2">
+      <input class="form-check-input" type="checkbox" name="D" value="-1" id="D">
+      <label class="form-check-label" for="D"><span class="text-purple">RH:</span> Questões em relação à jornada (-1)</label>
+    </div>
+    <div class="form-check mb-4">
+      <input class="form-check-input" type="checkbox" name="E" value="-2" id="E">
+      <label class="form-check-label" for="E"><span class="text-success">Faturamento:</span> Erro do entregador (-2)</label>
+    </div>
 
-        <hr>
+    <hr>
+    <h5>Extras:</h5>
+    <div class="form-check mb-2">
+      <input class="form-check-input" type="checkbox" name="extras" value="meta" id="meta">
+      <label class="form-check-label" for="meta">📈 Meta de faturamento (+2)</label>
+    </div>
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" name="extras" value="equipe90" id="equipe90">
+      <label class="form-check-label" for="equipe90">🤝 Equipe chegou a 90% de pontuação (+1)</label>
+    </div>
 
-        <h5>Extras:</h5>
-        <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" name="extras" value="meta" id="meta">
-            <label class="form-check-label" for="meta">📈 Meta de faturamento (+2)</label>
-        </div>
+    <div class="mb-3">
+      <label for="observacao" class="form-label">Observação:</label>
+      <textarea class="form-control" name="observacao" rows="2"></textarea>
+    </div>
 
-        <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" name="extras" value="equipe90" id="equipe90">
-            <label class="form-check-label" for="equipe90">🤝 Equipe chegou a 90% de pontuação (+1)</label>
-        </div>
-
-        <div class="mb-3">
-            <label for="observacao" class="form-label">Observação:</label>
-            <textarea class="form-control" name="observacao" rows="2"></textarea>
-        </div>
-
-        <button type="submit" class="btn btn-success">Salvar</button>
-    </form>
+    <button type="submit" class="btn btn-success">Salvar</button>
+  </form>
 </div>
 {% endblock %}
