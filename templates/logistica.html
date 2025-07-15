@@ -1,79 +1,79 @@
 {% extends 'base.html' %}
 
-{% block title %}Registro Diário - Logística{% endblock %}
+{% block title %}Pontuação - Logística{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">🚛 Registro Diário - Logística</h2>
+<div class="container mt-4">
+  <h2 class="mb-4">🚛 Pontuação - Logística</h2>
+  <form method="POST" action="/logistica">
+    <div class="mb-3">
+      <label for="data" class="form-label">Data:</label>
+      <input type="date" class="form-control" id="data" name="data" required>
+    </div>
 
-<form method="POST" onsubmit="return validarExtrasEquipe()">   
-  <div class="mb-3">
-    <label for="data" class="form-label">Data:</label>
-    <input type="date" class="form-control" id="data" name="data" required>
-  </div>
-
-  <div class="mb-3">
-    <label for="motorista" class="form-label">Motorista:</label>
-    <select class="form-select" id="motorista" name="motorista" required>
-      {% for m in motoristas %}
+    <div class="mb-3">
+      <label for="motorista" class="form-label">Motorista:</label>
+      <select name="motorista" id="motorista" class="form-select" required>
+        {% for m in motoristas %}
         <option value="{{ m }}">{{ m }}</option>
-      {% endfor %}
-    </select>
-  </div>
+        {% endfor %}
+      </select>
+    </div>
 
-  <div class="mb-3">
-    <label class="form-label">A (+1): Entregas concluídas 100% <span class="setor-financeiro">(Financeiro)</span></label>
-    <input type="number" class="form-control" name="A" value="0" min="0">
-  </div>
+    <h5 class="mt-4">✅ Avaliações</h5>
+    <div class="form-check mb-1">
+      <input class="form-check-input" type="checkbox" value="1" name="A" id="A">
+      <label class="form-check-label" for="A">
+        <strong class="setor-financeiro">Financeiro:</strong> Entregas concluídas 100% (+1)
+      </label>
+    </div>
 
-  <div class="mb-3">
-    <label class="form-label">B (+1): Veículo limpo e organizado <span class="setor-gerente">(Gerente ADM)</span></label>
-    <input type="number" class="form-control" name="B" value="0" min="0">
-  </div>
+    <div class="form-check mb-1">
+      <input class="form-check-input" type="checkbox" value="1" name="B" id="B">
+      <label class="form-check-label" for="B">
+        <strong class="setor-gerente">Gerente ADM:</strong> Veículo limpo e organizado (+1)
+      </label>
+    </div>
 
-  <div class="mb-3">
-    <label class="form-label">C (+1): Acerto organizado e correto <span class="setor-financeiro">(Financeiro)</span></label>
-    <input type="number" class="form-control" name="C" value="0" min="0">
-  </div>
+    <div class="form-check mb-1">
+      <input class="form-check-input" type="checkbox" value="1" name="C" id="C">
+      <label class="form-check-label" for="C">
+        <strong class="setor-financeiro">Financeiro:</strong> Acerto organizado e correto (+1)
+      </label>
+    </div>
 
-  <div class="mb-3">
-    <label class="form-label">D (-2): Questões de jornada <span class="setor-rh">(RH)</span></label>
-    <input type="number" class="form-control" name="D" value="0" max="0">
-  </div>
+    <div class="form-check mb-1">
+      <input class="form-check-input" type="checkbox" value="-1" name="D" id="D">
+      <label class="form-check-label" for="D">
+        <strong class="setor-rh">RH:</strong> Questões em relação à jornada (-1)
+      </label>
+    </div>
 
-  <div class="mb-3">
-    <label class="form-label">E (-1): Erro do entregador <span class="setor-faturamento">(Faturamento)</span></label>
-    <input type="number" class="form-control" name="E" value="0" max="0">
-  </div>
+    <div class="form-check mb-1">
+      <input class="form-check-input" type="checkbox" value="-2" name="E" id="E">
+      <label class="form-check-label" for="E">
+        <strong class="setor-faturamento">Faturamento:</strong> Erro do entregador (-2)
+      </label>
+    </div>
 
-  <!-- PONTOS EXTRAS -->
-  <div class="form-check mb-1">
-    <input class="form-check-input" type="checkbox" name="extras" value="meta" id="meta">
-    <label class="form-check-label" for="meta">⛽ Economia de combustível 10% geral (+2)</label>
-  </div>
-  <div class="form-check mb-3">
-    <input class="form-check-input" type="checkbox" name="extras" value="equipe90" id="equipe90">
-    <label class="form-check-label" for="equipe90">🤝 Equipe chegou a 90% de pontuação (+1)</label>
-  </div>
+    <h5 class="mt-4">✨ Pontos Extras</h5>
+    <div class="form-check mb-1">
+      <input class="form-check-input" type="checkbox" name="extras" value="meta" id="meta">
+      <label class="form-check-label" for="meta">⛽ Economia de combustível 10% geral (+2)</label>
+    </div>
 
-  <div class="mb-3">
-    <label for="observacao" class="form-label">Observação:</label>
-    <textarea class="form-control" id="observacao" name="observacao" rows="3"></textarea>
-  </div>
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" name="extras" value="equipe90" id="equipe90">
+      <label class="form-check-label" for="equipe90">🤝 Equipe chegou a 90% de pontuação (+1)</label>
+    </div>
 
-  <button type="submit" class="btn btn-success">Salvar</button>
-  <a href="/" class="btn btn-secondary ms-2">Voltar</a>
-</form>
+    <div class="mb-3">
+      <label for="observacao" class="form-label">Observação:</label>
+      <textarea class="form-control" name="observacao" id="observacao" rows="2"></textarea>
+    </div>
 
-<script>
-  function validarExtrasEquipe() {
-    const motorista = document.getElementById("motorista").value;
-    const equipe90 = document.getElementById("equipe90").checked;
-
-    if (equipe90 && motorista !== "Equipe") {
-      alert("Para marcar o ponto extra 'Equipe chegou a 90%', selecione o motorista 'Equipe'.");
-      return false;
-    }
-    return true;
-  }
-</script>
+    <button type="submit" class="btn btn-primary">Salvar Pontuação</button>
+    <a href="/" class="btn btn-secondary">Voltar</a>
+  </form>
+</div>
 {% endblock %}
