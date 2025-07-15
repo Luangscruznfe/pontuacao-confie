@@ -51,23 +51,32 @@
 
     <!-- Menu colapsável -->
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link" href="/">🏠 Início</a></li>
-        <li class="nav-item"><a class="nav-link" href="/loja">🏬 Loja</a></li>
-        <li class="nav-item"><a class="nav-link" href="/expedicao">📦 Expedição</a></li>
-        <li class="nav-item"><a class="nav-link" href="/logistica">🚚 Logística</a></li>
-        <li class="nav-item"><a class="nav-link" href="/comercial">💼 Comercial</a></li>
-        <li class="nav-item"><a class="nav-link" href="/historico_loja">📊 Histórico Loja</a></li>
-        <li class="nav-item"><a class="nav-link" href="/historico_expedicao">📈 Histórico Expedição</a></li>
-        <li class="nav-item"><a class="nav-link" href="/historico_logistica">📋 Histórico Logística</a></li>
-        <li class="nav-item"><a class="nav-link" href="/historico_comercial">📉 Histórico Comercial</a></li>
-        <li class="nav-item">
-          <button class="btn btn-sm btn-outline-danger ms-2" data-bs-toggle="modal" data-bs-target="#modalZerar">
-            🗑️ Zerar Pontuações
-          </button>
-        </li>
-      </ul>
-    </div>
+  <ul class="navbar-nav ms-auto">
+    <li class="nav-item"><a class="nav-link" href="/">🏠 Início</a></li>
+    <li class="nav-item"><a class="nav-link" href="/loja">🏬 Loja</a></li>
+    <li class="nav-item"><a class="nav-link" href="/expedicao">📦 Expedição</a></li>
+    <li class="nav-item"><a class="nav-link" href="/logistica">🚚 Logística</a></li>
+    <li class="nav-item"><a class="nav-link" href="/comercial">💼 Comercial</a></li>
+    <li class="nav-item"><a class="nav-link" href="/historico_loja">📊 Histórico Loja</a></li>
+    <li class="nav-item"><a class="nav-link" href="/historico_expedicao">📈 Histórico Expedição</a></li>
+    <li class="nav-item"><a class="nav-link" href="/historico_logistica">📋 Histórico Logística</a></li>
+    <li class="nav-item"><a class="nav-link" href="/historico_comercial">📉 Histórico Comercial</a></li>
+
+    <!-- Novo botão Restaurar Backup -->
+    <li class="nav-item">
+      <a class="btn btn-sm btn-outline-light ms-2" href="{{ url_for('restaurar_backup') }}">
+        🔄 Restaurar Backup
+      </a>
+    </li>
+
+    <!-- Botão Zerar Pontuações -->
+    <li class="nav-item">
+      <button class="btn btn-sm btn-outline-danger ms-2" data-bs-toggle="modal" data-bs-target="#modalZerar">
+        🗑️ Zerar Pontuações
+      </button>
+    </li>
+  </ul>
+</div>
   </div>
 </nav>
 

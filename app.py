@@ -580,5 +580,49 @@ def criar_banco():
     except Exception as e:
         return f"❌ Erro ao criar banco: {str(e)}"
 
+@app.route('/restaurar_backup', methods=['GET', 'POST'])
+def restaurar_backup():
+    if request.method == 'POST':
+        arquivo = request.files['backup']
+        if arquivo and arquivo.filename.endswith('.zip'):
+            try:
+                with tempfile.TemporaryDirectory() as tmpdirname:
+                    caminho_zip = os.path.join(tmpdirname, arquivo.filename)
+                    arquivo.save(caminho_zip)
+
+                    # Extrair ZIP
+                    with zipfile.ZipFile(caminho_zip, 'r') as zip_ref:
+                        zip_ref.extractall(tmpdirname)
+
+                    # Conectar ao banco
+                    conn = get_db_connection()
+                    c = conn.cursor()
+
+                    tabelas = ['loja', 'expedicao', 'logistica', 'comercial', 'pontuacoes']
+                    for tabela in tabelas:
+                        caminho_csv = os.path.join(tmpdirname, f"{tabela}.csv")
+                        if os.path.exists(caminho_csv):
+                            df = pd.read_csv(caminho_csv)
+
+                            # Limpa a tabela
+                            c.execute(f"DELETE FROM {tabela}")
+
+                            # Insere os dados
+                            for _, row in df.iterrows():
+                                colunas = ','.join(df.columns)
+                                valores = ','.join(['%s'] * len(df.columns))
+                                c.execute(f"INSERT INTO {tabela} ({colunas}) VALUES ({valores})", tuple(row))
+
+                    conn.commit()
+                    conn.close()
+                    flash("✅ Backup restaurado com sucesso!", "success")
+                    return redirect('/')
+            except Exception as e:
+                flash(f"❌ Erro ao restaurar backup: {e}", "danger")
+                return redirect('/restaurar_backup')
+
+    return render_template('restaurar_backup.html')
+
+
 if __name__ == '__main__':
         app.run(debug=True)
