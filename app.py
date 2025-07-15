@@ -321,8 +321,8 @@ def expedicao():
         A = 1 if 'A' in criterios else 0
         B = 1 if 'B' in criterios else 0
         C = 1 if 'C' in criterios else 0
-        D = -1 if 'D' in criterios else 0
-        E = -2 if 'E' in criterios else 0
+        D = -2 if 'D' in criterios else 0
+        E = -1 if 'E' in criterios else 0
 
         observacao = request.form.get('observacao', '')
         extras = request.form.getlist('extras')
