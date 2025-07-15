@@ -1,32 +1,56 @@
-if request.method == 'POST':
-    data = request.form.get('data')
-    criterios = request.form.getlist('criterios')
-    observacao = request.form.get('observacao', '')
-    extras = request.form.getlist('extras')
+{% extends 'base.html' %}
 
-    pesos = {'A': 1, 'B': 1, 'C': 1, 'D': -1, 'E': -2}
+{% block title %}Registro - Loja{% endblock %}
 
-    A = int('A' in criterios)
-    B = int('B' in criterios)
-    C = int('C' in criterios)
-    D = int('D' in criterios)
-    E = int('E' in criterios)
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">🛒 Registro de Pontuação - Loja</h2>
 
-    # Pontos extras
-    extras_pontos = 0
-    if 'meta' in extras:
-        extras_pontos += 2
-    if 'equipe90' in extras:
-        extras_pontos += 1
+    <form method="POST">
+        <div class="mb-3">
+            <label for="data" class="form-label">Data:</label>
+            <input type="date" class="form-control" name="data" required>
+        </div>
 
-    total = sum([pesos[c] for c in criterios]) + extras_pontos
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="criterios" value="A" id="A">
+            <label class="form-check-label" for="A">Organização da loja (+1)</label>
+        </div>
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="criterios" value="B" id="B">
+            <label class="form-check-label" for="B">Pontualidade (+1)</label>
+        </div>
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="criterios" value="C" id="C">
+            <label class="form-check-label" for="C">Fechamento do caixa (+1)</label>
+        </div>
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="criterios" value="D" id="D">
+            <label class="form-check-label" for="D">Não postar em rede social (-1)</label>
+        </div>
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="criterios" value="E" id="E">
+            <label class="form-check-label" for="E">Validade/Avaria (-2)</label>
+        </div>
 
-    conn = get_db_connection()
-    c = conn.cursor()
-    c.execute("INSERT INTO loja (data, A, B, C, D, E, extras, observacao, total) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-              (data, A, B, C, D, E, ','.join(extras), observacao, total))
-    conn.commit()
-    conn.close()
-    flash("✅ Pontuação registrada com sucesso!", "success")
-    fazer_backup_e_enviar()
-    return redirect('/loja')
+        <hr>
+
+        <h5>Extras:</h5>
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="extras" value="meta" id="meta">
+            <label class="form-check-label" for="meta">Meta diária batida/conversão 70% (+2)</label>
+        </div>
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="extras" value="equipe90" id="equipe90">
+            <label class="form-check-label" for="equipe90">Equipe chegou a 90% (+1)</label>
+        </div>
+
+        <div class="mb-3 mt-3">
+            <label for="observacao" class="form-label">Observação:</label>
+            <textarea class="form-control" name="observacao" rows="2"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-success">Salvar</button>
+    </form>
+</div>
+{% endblock %}
