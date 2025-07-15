@@ -1,84 +1,102 @@
 {% extends 'base.html' %}
 
-{% block title %}Registro Diário - Comercial{% endblock %}
+{% block title %}Registro de Pontuação - Comercial{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">📈 Registro Diário - Comercial</h2>
-<form method="POST">
-  <div class="mb-3">
-    <label for="data" class="form-label">Data:</label>
-    <input type="date" class="form-control" id="data" name="data" required>
-  </div>
-
-  <div class="mb-3">
-    <label for="vendedor" class="form-label">Vendedor:</label>
-    <select class="form-select" id="vendedor" name="vendedor" required>
-      {% for v in vendedores %}
-      <option value="{{ v }}">{{ v }}</option>
-      {% endfor %}
-    </select>
-  </div>
-
-  <div class="mb-3">
-    <label class="form-label">A (+2): Meta diária batida/conversão 70% <span class="setor-supervisor">(Supervisor)</span></label>
-    <input type="number" class="form-control" name="A" value="0">
-  </div>
-
-  <div class="mb-3">
-    <label class="form-label">B (+1): Cliente novo/Prospecção <span class="setor-gerente-comercial">(Gerente Comercial)</span></label>
-    <input type="number" class="form-control" name="B" value="0">
-  </div>
-
-  <div class="mb-3">
-    <label class="form-label">C (-1): Relatório diário em desacordo ou fora do horário <span class="setor-rh">(RH)</span></label>
-    <input type="number" class="form-control" name="C" value="0" max="0">
-  </div>
-
-  <div class="mb-3">
-    <label class="form-label">D (-1): Erro de pedido ou cliente insatisfeito <span class="setor-faturamento">(Faturamento)</span></label>
-    <input type="number" class="form-control" name="D" value="0" max="0">
-  </div>
-
-  <div class="mb-3">
-    <label class="form-label">E (-1): Inadimplência <span class="setor-financeiro">(Financeiro)</span></label>
-    <input type="number" class="form-control" name="E" value="0" max="0">
-  </div>
-
-  <div class="form-check mb-1">
-    <input class="form-check-input" type="checkbox" name="extras" value="meta" id="meta">
-    <label class="form-check-label" for="meta">📊 Positivação e faturamento batido individual (+2)</label>
-  </div>
-  <div class="form-check mb-3">
-    <input class="form-check-input" type="checkbox" name="extras" value="equipe90" id="equipe90">
-    <label class="form-check-label" for="equipe90">🤝 Equipe chegou a 90% da meta geral (+1)</label>
-  </div>
-
-  <div class="mb-3 mt-3">
-    <label for="observacao" class="form-label">Observação:</label>
-    <textarea class="form-control" id="observacao" name="observacao" rows="3"></textarea>
-  </div>
-
-  <button type="submit" class="btn btn-success">Salvar</button>
-  <a href="/" class="btn btn-secondary">Voltar</a>
-</form>
-
-<script>
-  document.querySelector('form').addEventListener('submit', function(e) {
-    const vendedor = document.querySelector('select[name="vendedor"]').value;
-    const equipe90 = document.querySelector('input[name="extras"][value="equipe90"]');
-    if (equipe90.checked && vendedor !== "EQUIPE") {
-      alert("❌ Para marcar o extra 'Equipe chegou a 90% da meta geral', selecione o vendedor 'EQUIPE'.");
-      e.preventDefault();
-    }
-  });
-</script>
-
 <style>
-  .setor-gerente { color: #b58900; font-weight: bold; }
-  .setor-rh { color: #6c5ce7; font-weight: bold; }
-  .setor-financeiro { color: #e74c3c; font-weight: bold; }
-  .setor-faturamento { color: #2ecc71; font-weight: bold; }
-  .setor-supervisor { color: deepskyblue; font-weight: bold; }
-  .setor-gerente-comercial { color: #bdc3c7; font-weight: bold; } /* prata */
+.card {
+  background-color: rgba(13, 27, 42, 0.8); /* azul escuro com transparência */
+  color: white;
+}
+.setor-gerente {
+  color: #b58900;
+  font-weight: bold;
+  display: block;
+  margin-bottom: -4px;
+}
+.setor-rh {
+  color: #6c5ce7;
+  font-weight: bold;
+  display: block;
+  margin-bottom: -4px;
+}
+.setor-financeiro {
+  color: #e74c3c;
+  font-weight: bold;
+  display: block;
+  margin-bottom: -4px;
+}
+.setor-faturamento {
+  color: #2ecc71;
+  font-weight: bold;
+  display: block;
+  margin-bottom: -4px;
+}
 </style>
+
+<div class="card p-4 mt-5 shadow-sm">
+  <h2 class="mb-4 fw-bold">📊 Registro de Pontuação - Comercial</h2>
+
+  <form method="POST">
+    <div class="mb-3">
+      <label for="data" class="form-label">Data:</label>
+      <input type="date" class="form-control" name="data" id="data" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="vendedor" class="form-label">Vendedor:</label>
+      <select class="form-select" name="vendedor" id="vendedor" required>
+        <option value="">Selecione o vendedor</option>
+        <option>EVERTON</option>
+        <option>MARCELO</option>
+        <option>PEDRO</option>
+        <option>SILVANA</option>
+        <option>TIAGO</option>
+        <option>RODOLFO</option>
+        <option>MARCOS</option>
+        <option>THYAGO</option>
+        <option>EQUIPE</option>
+      </select>
+    </div>
+
+    <div class="p-3 mb-4">
+      <div class="form-check mb-2">
+        <span class="setor-gerente">Gerente ADM</span>
+        <input class="form-check-input" type="checkbox" name="A" value="1" id="A">
+        <label class="form-check-label" for="A">Meta diária batida/conversão 70% (+1)</label>
+      </div>
+
+      <div class="form-check mb-2">
+        <span class="setor-gerente">Gerente ADM</span>
+        <input class="form-check-input" type="checkbox" name="B" value="1" id="B">
+        <label class="form-check-label" for="B">Cliente novo/Prospecção (+1)</label>
+      </div>
+
+      <div class="form-check mb-2">
+        <span class="setor-financeiro">Financeiro</span>
+        <input class="form-check-input" type="checkbox" name="C" value="-1" id="C">
+        <label class="form-check-label" for="C">Erro de pedido ou cliente insatisfeito (-1)</label>
+      </div>
+
+      <div class="form-check mb-2">
+        <span class="setor-financeiro">Financeiro</span>
+        <input class="form-check-input" type="checkbox" name="D" value="-1" id="D">
+        <label class="form-check-label" for="D">Inadimplência (-1)</label>
+      </div>
+
+      <div class="form-check mb-3">
+        <span class="setor-rh">RH</span>
+        <input class="form-check-input" type="checkbox" name="E" value="-2" id="E">
+        <label class="form-check-label" for="E">Relatório diário em desacordo ou fora do horário (-2)</label>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="observacao" class="form-label">📝 Observação (Opcional):</label>
+      <textarea class="form-control" name="observacao" id="observacao" rows="2"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">✅ Salvar Pontuação</button>
+  </form>
+</div>
 {% endblock %}
