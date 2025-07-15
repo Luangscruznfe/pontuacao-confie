@@ -10,6 +10,11 @@ import cloudinary.uploader
 import tempfile
 import zipfile
 import pandas as pd
+from flask import send_file
+import io
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
+
 
 
 app = Flask(__name__)
@@ -623,6 +628,59 @@ def restaurar_backup():
 
     return render_template('restaurar_backup.html')
 
+@app.route('/relatorio_excel')
+def relatorio_excel():
+    conn = get_db_connection()
+    c = conn.cursor()
+
+    tabelas = ['loja', 'expedicao', 'logistica', 'comercial', 'pontuacoes']
+    wb = Workbook()
+    wb.remove(wb.active)  # remove a planilha padrão
+
+    for tabela in tabelas:
+        c.execute(f"SELECT * FROM {tabela}")
+        dados = c.fetchall()
+        colunas = [desc[0] for desc in c.description]
+
+        if not dados:
+            continue
+
+        ws = wb.create_sheet(title=tabela.capitalize())
+        ws.append(colunas)
+
+        # Estiliza cabeçalho
+        for col in ws[1]:
+            col.font = Font(bold=True, color="FFFFFF")
+            col.fill = PatternFill(start_color="1f4e78", end_color="1f4e78", fill_type="solid")
+            col.alignment = Alignment(horizontal="center", vertical="center")
+
+        # Adiciona os dados
+        for linha in dados:
+            ws.append(linha)
+
+        # Bordas
+        thin = Side(border_style="thin", color="999999")
+        for row in ws.iter_rows(min_row=1, max_row=ws.max_row, max_col=ws.max_column):
+            for cell in row:
+                cell.border = Border(left=thin, right=thin, top=thin, bottom=thin)
+                cell.alignment = Alignment(horizontal="left", vertical="top", wrap_text=True)
+
+        # Ajusta largura das colunas automaticamente
+        for col in ws.columns:
+            max_length = max(len(str(cell.value)) if cell.value is not None else 0 for cell in col)
+            ws.column_dimensions[col[0].column_letter].width = max_length + 2
+
+    conn.close()
+
+    # Salvar em memória e retornar como download
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+
+    return send_file(output,
+                     as_attachment=True,
+                     download_name=f'relatorio_pontuacoes_{datetime.now().strftime("%Y-%m-%d")}.xlsx',
+                     mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 if __name__ == '__main__':
         app.run(debug=True)

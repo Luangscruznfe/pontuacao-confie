@@ -3,4 +3,5 @@ gunicorn==21.2.0
 cloudinary
 psycopg2-binary
 pandas
+openpyxl
 

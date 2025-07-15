@@ -62,6 +62,13 @@
     <li class="nav-item"><a class="nav-link" href="/historico_logistica">📋 Histórico Logística</a></li>
     <li class="nav-item"><a class="nav-link" href="/historico_comercial">📉 Histórico Comercial</a></li>
 
+    <!-- Botão Baixar Relatório -->
+    <li class="nav-item">
+      <a class="btn btn-sm btn-outline-success ms-2" href="{{ url_for('baixar_relatorio_excel') }}">
+        📥 Baixar Relatório
+      </a>
+    </li>
+
     <!-- Novo botão Restaurar Backup -->
     <li class="nav-item">
       <a class="btn btn-sm btn-outline-light ms-2" href="{{ url_for('restaurar_backup') }}">
