@@ -678,7 +678,7 @@ def baixar_relatorio_excel():
 
         ws = wb.create_sheet(title=tabela.capitalize())
 
-        # Substitui cabeçalhos A-E por nomes amigáveis
+        # Cabeçalhos amigáveis
         headers = []
         for col in colunas:
             if tabela in nomes_formatados and col.upper() in nomes_formatados[tabela]:
@@ -687,7 +687,7 @@ def baixar_relatorio_excel():
                 headers.append(col.capitalize())
         ws.append(headers)
 
-        # Estiliza cabeçalho
+        # Estilo do cabeçalho
         for col in ws[1]:
             col.font = Font(bold=True, color="FFFFFF")
             col.fill = PatternFill(start_color="1f4e78", end_color="1f4e78", fill_type="solid")
@@ -695,26 +695,36 @@ def baixar_relatorio_excel():
 
         total_geral = 0
         for linha in dados:
-            ws.append([cell if cell is not None and str(cell).lower() != 'nan' else '' for cell in linha])
+            linha_formatada = []
+            for i, cell in enumerate(linha):
+                if cell is None or str(cell).lower() == 'nan':
+                    linha_formatada.append('')
+                elif isinstance(cell, str) and cell.lower() == 'nan':
+                    linha_formatada.append('')
+                elif isinstance(cell, datetime):
+                    linha_formatada.append(cell.strftime("%d/%m/%Y"))
+                else:
+                    linha_formatada.append(cell)
+            ws.append(linha_formatada)
+
             if 'total' in colunas:
                 total_geral += linha[colunas.index('total')]
 
-        # Adiciona linha de total se tiver campo 'total'
+        # Linha do total
         if 'total' in colunas:
             idx_total = colunas.index('total') + 1
             ws.append([""] * (idx_total - 1) + ["Total Geral:", total_geral])
-
             ultima_linha = ws.max_row
             ws[f"{chr(64 + idx_total)}{ultima_linha}"].font = Font(bold=True, color="1f4e78")
 
-        # Bordas e alinhamento
+        # Estilo geral
         thin = Side(border_style="thin", color="999999")
         for row in ws.iter_rows(min_row=1, max_row=ws.max_row, max_col=ws.max_column):
             for cell in row:
                 cell.border = Border(left=thin, right=thin, top=thin, bottom=thin)
                 cell.alignment = Alignment(horizontal="left", vertical="top", wrap_text=True)
 
-        # Ajusta largura das colunas
+        # Ajuste de largura
         for col in ws.columns:
             max_len = max(len(str(cell.value)) if cell.value else 0 for cell in col)
             ws.column_dimensions[col[0].column_letter].width = max_len + 2
