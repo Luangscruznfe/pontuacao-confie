@@ -315,35 +315,35 @@ def loja():
 @app.route('/expedicao', methods=['GET', 'POST'])
 def expedicao():
     if request.method == 'POST':
-        data = request.form.get('data')
-        A = safe_int(request.form.get('A'))
-        B = safe_int(request.form.get('B'))
-        C = safe_int(request.form.get('C'))
-        D = safe_int(request.form.get('D'))
-        E = safe_int(request.form.get('E'))
-        observacao = request.form.get('observacao', '')
-        extras = request.form.getlist('extras')
+    data = request.form.get('data')
+    criterios = request.form.getlist('criterios')
 
-        # Pontos extras
-        extras_pontos = 0
-        if 'meta' in extras:
-            extras_pontos += 2
-        if 'equipe90' in extras:
-            extras_pontos += 1
+    A = 1 if 'A' in criterios else 0
+    B = 1 if 'B' in criterios else 0
+    C = 1 if 'C' in criterios else 0
+    D = -1 if 'D' in criterios else 0
+    E = -2 if 'E' in criterios else 0
 
-        total = A + B + C + D + E + extras_pontos
+    observacao = request.form.get('observacao', '')
+    extras = request.form.getlist('extras')
 
-        conn = get_db_connection()
-        c = conn.cursor()
-        c.execute("INSERT INTO expedicao (data, A, B, C, D, E, extras, observacao, total) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                  (data, A, B, C, D, E, ','.join(extras), observacao, total))
-        conn.commit()
-        conn.close()
-        flash("✅ Pontuação registrada com sucesso!", "success")
-        fazer_backup_e_enviar()
-        return redirect('/expedicao')
+    extras_pontos = 0
+    if 'meta' in extras:
+        extras_pontos += 2
+    if 'equipe90' in extras:
+        extras_pontos += 1
 
-    return render_template('expedicao.html')
+    total = A + B + C + D + E + extras_pontos
+
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute("INSERT INTO expedicao (data, A, B, C, D, E, extras, observacao, total) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+              (data, A, B, C, D, E, ','.join(extras), observacao, total))
+    conn.commit()
+    conn.close()
+    flash("✅ Pontuação registrada com sucesso!", "success")
+    fazer_backup_e_enviar()
+    return redirect('/expedicao')
 
 
 @app.route('/historico_expedicao')
