@@ -7,6 +7,10 @@ import psycopg2
 import os
 import cloudinary
 import cloudinary.uploader
+import tempfile
+import zipfile
+import pandas as pd
+
 
 app = Flask(__name__)
 app.secret_key = 'confie'
@@ -91,6 +95,53 @@ def init_db():
 
     conn.commit()
     conn.close()
+
+def fazer_backup_e_enviar():
+    try:
+        conn = get_db_connection()
+        c = conn.cursor()
+
+        tabelas = ['loja', 'expedicao', 'logistica', 'comercial', 'pontuacoes']
+        arquivos_csv = []
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            for tabela in tabelas:
+                c.execute(f"SELECT * FROM {tabela}")
+                rows = c.fetchall()
+                colnames = [desc[0] for desc in c.description]
+
+                if not rows:
+                    continue
+
+                # Salva CSV temporário
+                df = pd.DataFrame(rows, columns=colnames)
+                caminho_csv = os.path.join(tmpdirname, f"{tabela}.csv")
+                df.to_csv(caminho_csv, index=False)
+                arquivos_csv.append(caminho_csv)
+
+            # Compactar todos os arquivos em um ZIP
+            caminho_zip = os.path.join(tmpdirname, f"backup_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.zip")
+            with zipfile.ZipFile(caminho_zip, 'w') as zipf:
+                for file in arquivos_csv:
+                    zipf.write(file, os.path.basename(file))
+
+            # Enviar para o Cloudinary
+            resultado = cloudinary.uploader.upload(
+                caminho_zip,
+                resource_type='raw',
+                folder='backups_pontuacao',
+                use_filename=True,
+                unique_filename=False,
+                overwrite=False
+            )
+
+            return resultado['secure_url']
+
+    except Exception as e:
+        print("Erro ao fazer backup automático:", e)
+        return None
+
+
 
 @app.template_filter('datetimeformat')
 def datetimeformat(value, format='%d/%m/%Y'):
@@ -239,8 +290,10 @@ def loja():
         conn.commit()
         conn.close()
         flash("✅ Pontuação registrada com sucesso!", "success")
+        fazer_backup_e_enviar()
         return redirect('/loja')
 
+    
     return render_template('loja.html')
 
 # =======================================================================
@@ -275,6 +328,7 @@ def expedicao():
         conn.close()
 
         flash("✅ Pontuação registrada com sucesso!", "success")
+        fazer_backup_e_enviar()
         return redirect('/expedicao')
 
     return render_template('expedicao.html')
@@ -341,6 +395,7 @@ def logistica():
         conn.commit()
         conn.close()
         flash("✅ Pontuação da logística registrada com sucesso!", "success")
+        fazer_backup_e_enviar()
         return redirect('/logistica')
 
     conn.close()
@@ -459,6 +514,7 @@ def comercial():
         conn.close()
 
         flash("✅ Pontuação registrada com sucesso!", "success")
+        fazer_backup_e_enviar()
         return redirect('/comercial')
 
     conn.close()
