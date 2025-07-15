@@ -48,7 +48,7 @@
           {{ extras|join(', ') }}
         </td>
         <td>{{ r[10] }}</td>
-        <td>{{ r[9] }}</td>
+        <td>{{ r[9] if r[9] and r[9]|string|lower != 'nan' else '' }}</td>
       </tr>
       {% endfor %}
 

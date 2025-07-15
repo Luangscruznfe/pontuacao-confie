@@ -35,7 +35,7 @@
           {% if 'equipe90' in extras %}Equipe chegou a 90% de pontuação (+1){% endif %}
         </td>
         <td>{{ r[8] }}</td>
-        <td>{{ r[7] }}</td>
+        <td>{{ r[7] if r[7] and r[7]|string|lower != 'nan' else '' }}</td>
       </tr>
       {% endfor %}
       <tr>

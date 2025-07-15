@@ -65,7 +65,7 @@
                 {% endif %}
               {% endfor %}
             </td>
-            <td>{{ r[8] }}</td>
+            <td>{{ r[8] if r[8] and r[8]|string|lower != 'nan' else '' }}</td>
             <td>{{ total_parcial }}</td>
           </tr>
         {% endfor %}
