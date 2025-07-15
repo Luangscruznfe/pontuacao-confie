@@ -27,19 +27,35 @@
   <div class="table-responsive">
     <table class="table table-bordered text-white">
       <thead class="table-dark">
-        <tr>
-          <th>Data</th>
-          <th>Motorista</th>
-          <th>Entregas 100% <span class="setor-financeiro">(Financeiro)</span></th>
-          <th>Veículo limpo <span class="setor-gerente">(Gerente ADM)</span></th>
-          <th>Acerto correto <span class="setor-financeiro">(Financeiro)</span></th>
-          <th>Jornada <span class="setor-rh">(RH)</span></th>
-          <th>Erro entregador <span class="setor-faturamento">(Faturamento)</span></th>
-          <th>Extras</th>
-          <th>Observação</th>
-          <th>Total</th>
-        </tr>
-      </thead>
+  <tr>
+    <th>Data</th>
+    <th>Motorista</th>
+    <th>
+      Entregas concluídas 100%<br>
+      <span class="setor-financeiro">(Financeiro)</span>
+    </th>
+    <th>
+      Veículo limpo e organizado<br>
+      <span class="setor-gerente">(Gerente ADM)</span>
+    </th>
+    <th>
+      Acerto organizado e correto<br>
+      <span class="setor-financeiro">(Financeiro)</span>
+    </th>
+    <th>
+      Questões em relação à jornada<br>
+      <span class="setor-rh">(RH)</span>
+    </th>
+    <th>
+      Erro do entregador<br>
+      <span class="setor-faturamento">(Faturamento)</span>
+    </th>
+    <th>Extras</th>
+    <th>Observação</th>
+    <th>Total</th>
+  </tr>
+</thead>
+
       <tbody>
         {% set ns = namespace(total_geral=0) %}
         {% for r in registros %}
