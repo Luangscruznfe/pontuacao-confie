@@ -43,7 +43,7 @@
 <div class="card p-4 mt-5 shadow-sm">
   <h2 class="mb-4 fw-bold">📊 Registro de Pontuação - Comercial</h2>
 
-  <form method="POST">
+  <form method="POST" onsubmit="return validarExtraEquipe()">
     <div class="mb-3">
       <label for="data" class="form-label">Data:</label>
       <input type="date" class="form-control" name="data" id="data" required>
@@ -117,4 +117,17 @@
     <button type="submit" class="btn btn-primary">✅ Salvar Pontuação</button>
   </form>
 </div>
+
+<script>
+function validarExtraEquipe() {
+  const vendedor = document.getElementById('vendedor').value;
+  const extraEquipe = document.getElementById('extra-equipe');
+
+  if (extraEquipe.checked && vendedor !== 'EQUIPE') {
+    alert('⚠️ O ponto extra "Equipe chegou a 90% da meta geral" só pode ser marcado se o vendedor for "EQUIPE".');
+    return false;
+  }
+  return true;
+}
+</script>
 {% endblock %}

@@ -485,7 +485,7 @@ def comercial():
 
     c.execute('''
         CREATE TABLE IF NOT EXISTS comercial (
-        id SERIAL PRIMARY KEY,
+            id SERIAL PRIMARY KEY,
             data TEXT,
             vendedor TEXT,
             A INTEGER,
@@ -512,6 +512,12 @@ def comercial():
         E = safe_int(request.form.get('E'))
         extras = request.form.getlist('extras')
         observacao = request.form.get('observacao', '')
+
+        # 🔒 Validação do ponto extra equipe90
+        if 'equipe90' in extras and vendedor != 'EQUIPE':
+            flash("❌ O ponto extra 'Equipe chegou a 90%' só pode ser usado com o vendedor 'EQUIPE'.", "danger")
+            conn.close()
+            return redirect('/comercial')
 
         total = A + B + C + D + E
         if 'meta' in extras:
