@@ -514,7 +514,7 @@ def comercial():
         observacao = request.form.get('observacao', '')
 
         # 🔒 Validação do ponto extra equipe90
-        if 'equipe90' in extras and vendedor != 'EQUIPE':
+        if 'equipe90' in extras and vendedor.upper() != 'EQUIPE':
             flash("❌ O ponto extra 'Equipe chegou a 90%' só pode ser usado com o vendedor 'EQUIPE'.", "danger")
             conn.close()
             return redirect('/comercial')
@@ -539,7 +539,6 @@ def comercial():
 
     conn.close()
     return render_template('comercial.html', vendedores=vendedores)
-
 
 @app.route('/historico_comercial')
 def historico_comercial():
