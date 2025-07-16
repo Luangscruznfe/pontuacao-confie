@@ -397,7 +397,7 @@ def logistica():
 
         total = A + B + C + D + E
 
-        # ✅ Soma extra de economia
+        # ✅ Soma extra de economia (novo identificador correto)
         if 'economia' in extras:
             total += 2
 
@@ -423,7 +423,6 @@ def logistica():
 
     conn.close()
     return render_template('logistica.html', motoristas=motoristas)
-
 
 
 @app.route('/historico_logistica')
