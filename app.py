@@ -395,6 +395,12 @@ def logistica():
         extras = request.form.getlist('extras')
         observacao = request.form.get('observacao', '')
 
+        # 🔒 Validação do extra 'equipe90' para motorista 'Equipe'
+        if 'equipe90' in extras and motorista != 'Equipe':
+            flash("❌ O ponto extra 'Equipe chegou a 90%' só pode ser usado com o motorista 'Equipe'.", "danger")
+            conn.close()
+            return redirect('/logistica')
+
         total = A + B + C + D + E
         if 'meta' in extras:
             total += 2
