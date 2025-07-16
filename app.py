@@ -395,15 +395,18 @@ def logistica():
         extras = request.form.getlist('extras')
         observacao = request.form.get('observacao', '')
 
+        total = A + B + C + D + E
+
+        # ✅ Soma extra de economia
+        if 'economia' in extras:
+            total += 2
+
         # 🔒 Validação do extra 'equipe90' para motorista 'Equipe'
         if 'equipe90' in extras and motorista != 'Equipe':
             flash("❌ O ponto extra 'Equipe chegou a 90%' só pode ser usado com o motorista 'Equipe'.", "danger")
             conn.close()
             return redirect('/logistica')
 
-        total = A + B + C + D + E
-        if 'meta' in extras:
-            total += 2
         if 'equipe90' in extras:
             total += 1
 
@@ -420,6 +423,7 @@ def logistica():
 
     conn.close()
     return render_template('logistica.html', motoristas=motoristas)
+
 
 
 @app.route('/historico_logistica')
