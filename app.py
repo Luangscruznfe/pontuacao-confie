@@ -364,6 +364,34 @@ def expedicao():
 
         conn = get_db_connection()
         c = conn.cursor()
+
+        # Verificações de trava
+        c.execute("SELECT * FROM expedicao WHERE data = %s", (data,))
+        registros_dia = c.fetchall()
+
+        for r in registros_dia:
+            if r[1] == 1 and 'A' in criterios:
+                flash("⚠️ O critério A já foi registrado neste dia.", "danger")
+                conn.close()
+                return redirect('/expedicao')
+            if r[2] == 1 and 'B' in criterios:
+                flash("⚠️ O critério B já foi registrado neste dia.", "danger")
+                conn.close()
+                return redirect('/expedicao')
+            if r[3] == 1 and 'C' in criterios:
+                flash("⚠️ O critério C já foi registrado neste dia.", "danger")
+                conn.close()
+                return redirect('/expedicao')
+            if r[4] == -2 and 'D' in criterios:
+                flash("⚠️ O critério D já foi registrado neste dia.", "danger")
+                conn.close()
+                return redirect('/expedicao')
+            if r[5] == -1 and 'E' in criterios:
+                flash("⚠️ O critério E já foi registrado neste dia.", "danger")
+                conn.close()
+                return redirect('/expedicao')
+
+        # Se passou nas travas, insere
         c.execute("INSERT INTO expedicao (data, A, B, C, D, E, extras, observacao, total) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
                   (data, A, B, C, D, E, ','.join(extras), observacao, total))
         conn.commit()
