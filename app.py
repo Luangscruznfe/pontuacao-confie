@@ -285,15 +285,32 @@ def loja():
         D = int('D' in criterios)
         E = int('E' in criterios)
 
-        # 🔒 Trava: se critério A estiver marcado e já foi pontuado hoje
-        if A == 1:
-            conn = get_db_connection()
-            c = conn.cursor()
-            c.execute("SELECT COUNT(*) FROM loja WHERE data = %s AND A = 1", (data,))
-            if c.fetchone()[0] > 0:
-                conn.close()
-                flash("❌ A pontuação 'Organização da loja' já foi registrada para esse dia.", "danger")
-                return redirect('/loja')
+        # Verificar travas para critérios já registrados
+        conn = get_db_connection()
+        c = conn.cursor()
+        c.execute("SELECT A, B, C, D, E FROM loja WHERE data = %s", (data,))
+        registros = c.fetchall()
+
+        for registro in registros:
+            crits_existentes = {
+                'A': registro[0],
+                'B': registro[1],
+                'C': registro[2],
+                'D': registro[3],
+                'E': registro[4],
+            }
+            for c_sel in criterios:
+                if crits_existentes.get(c_sel, 0) == 1:
+                    nomes = {
+                        'A': "Organização da loja",
+                        'B': "Pontualidade",
+                        'C': "Fechamento do caixa",
+                        'D': "Postagem em rede social",
+                        'E': "Cumprimento de metas"
+                    }
+                    flash(f"❌ A pontuação '{nomes[c_sel]}' já foi registrada para esse dia.", "danger")
+                    conn.close()
+                    return redirect('/loja')
 
         # Soma os pontos dos critérios
         total = sum([pesos[c] for c in criterios])
@@ -304,21 +321,19 @@ def loja():
         if 'equipe90' in extras:
             total += 1
 
-        # Inserção normal
-        conn = get_db_connection()
-        c = conn.cursor()
+        # Inserir no banco
         c.execute("""
             INSERT INTO loja (data, A, B, C, D, E, extras, observacao, total)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """, (data, A, B, C, D, E, ','.join(extras), observacao, total))
         conn.commit()
         conn.close()
+
         flash("✅ Pontuação registrada com sucesso!", "success")
         fazer_backup_e_enviar()
         return redirect('/loja')
 
     return render_template('loja.html')
-
 
 
 # =======================================================================
