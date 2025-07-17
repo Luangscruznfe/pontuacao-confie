@@ -875,5 +875,35 @@ def baixar_relatorio_excel():
         mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
 
+@app.route('/deletar', methods=['GET', 'POST'])
+def deletar():
+    if request.method == 'POST':
+        tabela = request.form.get('tabela')
+        id_registro = request.form.get('id')
+        senha = request.form.get('senha')
+
+        if senha != DELETE_PASSWORD:
+            flash("❌ Senha incorreta.", "danger")
+            return redirect('/deletar')
+
+        if tabela not in ['loja', 'expedicao', 'logistica', 'comercial']:
+            flash("❌ Tabela inválida.", "danger")
+            return redirect('/deletar')
+
+        try:
+            conn = get_db_connection()
+            c = conn.cursor()
+            c.execute(f"DELETE FROM {tabela} WHERE id = %s", (id_registro,))
+            conn.commit()
+            conn.close()
+            flash(f"✅ Registro ID {id_registro} apagado da tabela {tabela}.", "success")
+        except Exception as e:
+            flash(f"❌ Erro ao deletar: {str(e)}", "danger")
+
+        return redirect('/deletar')
+
+    return render_template('deletar.html')
+
+
 if __name__ == '__main__':
         app.run(debug=True)
