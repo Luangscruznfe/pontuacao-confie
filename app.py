@@ -611,27 +611,27 @@ def comercial():
             conn.close()
             return redirect('/comercial')
 
-        # 🔒 Travas por vendedor e data
+        # 🔒 Travas por vendedor e data (agora considerando qualquer valor diferente de zero)
         c.execute("SELECT A, B, C, D, E FROM comercial WHERE data = %s AND vendedor = %s", (data, vendedor))
         registros = c.fetchall()
 
-        if A == 1 and any(r[0] == 1 for r in registros):
+        if A != 0 and any(r[0] != 0 for r in registros):
             flash("⚠️ O critério A já foi registrado para esse vendedor nesse dia.", "danger")
             conn.close()
             return redirect('/comercial')
-        if B == 1 and any(r[1] == 1 for r in registros):
+        if B != 0 and any(r[1] != 0 for r in registros):
             flash("⚠️ O critério B já foi registrado para esse vendedor nesse dia.", "danger")
             conn.close()
             return redirect('/comercial')
-        if C == 1 and any(r[2] == 1 for r in registros):
+        if C != 0 and any(r[2] != 0 for r in registros):
             flash("⚠️ O critério C já foi registrado para esse vendedor nesse dia.", "danger")
             conn.close()
             return redirect('/comercial')
-        if D == -2 and any(r[3] == -2 for r in registros):
+        if D != 0 and any(r[3] != 0 for r in registros):
             flash("⚠️ O critério D já foi registrado para esse vendedor nesse dia.", "danger")
             conn.close()
             return redirect('/comercial')
-        if E == -1 and any(r[4] == -1 for r in registros):
+        if E != 0 and any(r[4] != 0 for r in registros):
             flash("⚠️ O critério E já foi registrado para esse vendedor nesse dia.", "danger")
             conn.close()
             return redirect('/comercial')
@@ -656,6 +656,7 @@ def comercial():
 
     conn.close()
     return render_template('comercial.html', vendedores=vendedores)
+
 
 
 @app.route('/historico_comercial')
