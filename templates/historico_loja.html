@@ -9,6 +9,7 @@
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
+	<th>ID</th>
         <th>Data</th>
         <th>Organização da loja <span class="setor-gerente">(Gerente ADM)</span></th>
         <th>Pontualidade <span class="setor-rh">(RH)</span></th>
@@ -21,31 +22,33 @@
       </tr>
     </thead>
     <tbody>
-      {% for r in registros %}
-      <tr>
-        <td>{{ r[0]|datetimeformat }}</td>
-        <td>{{ r[1] }}</td>
-        <td>{{ r[2] }}</td>
-        <td>{{ r[3] }}</td>
-        <td>{{ r[4] }}</td>
-        <td>{{ r[5] }}</td>
-        <td>
-          {% set extras = r[6] %}
-          {% if 'meta' in extras %}Meta de faturamento (+2)<br>{% endif %}
-          {% if 'equipe90' in extras %}Equipe chegou a 90% de pontuação (+1){% endif %}
-        </td>
-        <td>{{ r[8] }}</td>
-        <td>{{ r[7] if r[7] and r[7]|string|lower != 'nan' else '' }}</td>
-      </tr>
-      {% endfor %}
-      <tr>
-        <td colspan="7" class="text-end fw-bold">Total Geral:</td>
-        <td class="fw-bold {% if total_geral >= 0 %}text-success{% else %}text-danger{% endif %}">
-          {{ total_geral }}
-        </td>
-        <td></td>
-      </tr>
-    </tbody>
+  {% for r in registros %}
+  <tr>
+    <td>{{ r[0] }}</td>  <!-- ID -->
+    <td>{{ r[1] }}</td>  <!-- Data -->
+    <td>{{ r[2] }}</td>  <!-- A -->
+    <td>{{ r[3] }}</td>  <!-- B -->
+    <td>{{ r[4] }}</td>  <!-- C -->
+    <td>{{ r[5] }}</td>  <!-- D -->
+    <td>{{ r[6] }}</td>  <!-- E -->
+    <td>
+      {% set extras = r[7] %}
+      {% if 'meta' in extras %}Meta de faturamento (+2)<br>{% endif %}
+      {% if 'equipe90' in extras %}Equipe chegou a 90% de pontuação (+1){% endif %}
+    </td>
+    <td>{{ r[8] }}</td>  <!-- Total -->
+    <td>{{ r[9] if r[9] and r[9]|string|lower != 'nan' else '' }}</td>  <!-- Observação -->
+  </tr>
+  {% endfor %}
+  <tr>
+    <td colspan="8" class="text-end fw-bold">Total Geral:</td>
+    <td class="fw-bold {% if total_geral >= 0 %}text-success{% else %}text-danger{% endif %}">
+      {{ total_geral }}
+    </td>
+    <td></td>
+  </tr>
+</tbody>
+
   </table>
 
   <a href="/" class="btn btn-secondary mt-3">🔙 Voltar</a>
