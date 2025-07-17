@@ -615,35 +615,33 @@ def comercial():
         c.execute("SELECT A, B, C, D, E FROM comercial WHERE data = %s AND vendedor = %s", (data, vendedor))
         registros = c.fetchall()
 
-        if any(r[0] == 1 for r in registros) and A == 1:
+        if A == 1 and any(r[0] == 1 for r in registros):
             flash("⚠️ O critério A já foi registrado para esse vendedor nesse dia.", "danger")
             conn.close()
             return redirect('/comercial')
-        if any(r[1] == 1 for r in registros) and B == 1:
+        if B == 1 and any(r[1] == 1 for r in registros):
             flash("⚠️ O critério B já foi registrado para esse vendedor nesse dia.", "danger")
             conn.close()
             return redirect('/comercial')
-        if any(r[2] == 1 for r in registros) and C == 1:
+        if C == 1 and any(r[2] == 1 for r in registros):
             flash("⚠️ O critério C já foi registrado para esse vendedor nesse dia.", "danger")
             conn.close()
             return redirect('/comercial')
-        if any(r[3] == -2 for r in registros) and D == -2:
+        if D == -2 and any(r[3] == -2 for r in registros):
             flash("⚠️ O critério D já foi registrado para esse vendedor nesse dia.", "danger")
             conn.close()
             return redirect('/comercial')
-        if any(r[4] == -1 for r in registros) and E == -1:
+        if E == -1 and any(r[4] == -1 for r in registros):
             flash("⚠️ O critério E já foi registrado para esse vendedor nesse dia.", "danger")
             conn.close()
             return redirect('/comercial')
 
-        # ✅ Calcula total
         total = A + B + C + D + E
         if 'meta' in extras:
             total += 2
         if 'equipe90' in extras:
             total += 1
 
-        # ✅ Insere pontuação
         c.execute('''
             INSERT INTO comercial (data, vendedor, A, B, C, D, E, extras, observacao, total)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
