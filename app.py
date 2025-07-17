@@ -285,6 +285,16 @@ def loja():
         D = int('D' in criterios)
         E = int('E' in criterios)
 
+        # 🔒 Trava: se critério A estiver marcado e já foi pontuado hoje
+        if A == 1:
+            conn = get_db_connection()
+            c = conn.cursor()
+            c.execute("SELECT COUNT(*) FROM loja WHERE data = %s AND A = 1", (data,))
+            if c.fetchone()[0] > 0:
+                conn.close()
+                flash("❌ A pontuação 'Organização da loja' já foi registrada para esse dia.", "danger")
+                return redirect('/loja')
+
         # Soma os pontos dos critérios
         total = sum([pesos[c] for c in criterios])
 
@@ -294,6 +304,7 @@ def loja():
         if 'equipe90' in extras:
             total += 1
 
+        # Inserção normal
         conn = get_db_connection()
         c = conn.cursor()
         c.execute("""
@@ -307,6 +318,7 @@ def loja():
         return redirect('/loja')
 
     return render_template('loja.html')
+
 
 
 # =======================================================================
