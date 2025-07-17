@@ -455,11 +455,11 @@ def logistica():
 
         total = A + B + C + D + E
 
-        # ✅ Soma extra de economia (novo identificador correto)
+        # ✅ Soma extra de economia
         if 'economia' in extras:
             total += 2
 
-        # 🔒 Validação do extra 'equipe90' para motorista 'Equipe'
+        # 🔒 Validação do extra 'equipe90'
         if 'equipe90' in extras and motorista != 'Equipe':
             flash("❌ O ponto extra 'Equipe chegou a 90%' só pode ser usado com o motorista 'Equipe'.", "danger")
             conn.close()
@@ -468,6 +468,32 @@ def logistica():
         if 'equipe90' in extras:
             total += 1
 
+        # 🔒 Verificações de trava por motorista
+        c.execute("SELECT A, B, C, D, E FROM logistica WHERE data = %s AND motorista = %s", (data, motorista))
+        registros = c.fetchall()
+
+        if any(r[0] == 1 for r in registros) and A == 1:
+            flash("⚠️ O critério A já foi registrado para esse motorista nesse dia.", "danger")
+            conn.close()
+            return redirect('/logistica')
+        if any(r[1] == 1 for r in registros) and B == 1:
+            flash("⚠️ O critério B já foi registrado para esse motorista nesse dia.", "danger")
+            conn.close()
+            return redirect('/logistica')
+        if any(r[2] == 1 for r in registros) and C == 1:
+            flash("⚠️ O critério C já foi registrado para esse motorista nesse dia.", "danger")
+            conn.close()
+            return redirect('/logistica')
+        if any(r[3] == -2 for r in registros) and D == -2:
+            flash("⚠️ O critério D já foi registrado para esse motorista nesse dia.", "danger")
+            conn.close()
+            return redirect('/logistica')
+        if any(r[4] == -1 for r in registros) and E == -1:
+            flash("⚠️ O critério E já foi registrado para esse motorista nesse dia.", "danger")
+            conn.close()
+            return redirect('/logistica')
+
+        # ✅ Se passou nas travas, insere
         c.execute('''
             INSERT INTO logistica (data, motorista, A, B, C, D, E, extras, observacao, total)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
