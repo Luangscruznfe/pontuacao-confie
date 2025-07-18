@@ -521,14 +521,14 @@ def historico_logistica():
 
     if motorista:
         c.execute('''
-            SELECT id, data, motorista, A, B, C, D, E, extras, observacao  
+            SELECT id, data, motorista, A, B, C, D, E, extras, observacao, total  
             FROM logistica 
             WHERE motorista = %s 
             ORDER BY data DESC
         ''', (motorista,))
     else:
         c.execute('''
-            SELECT data, motorista, A, B, C, D, E, extras, observacao, total 
+            SELECT id, data, motorista, A, B, C, D, E, extras, observacao, total 
             FROM logistica 
             ORDER BY data DESC
         ''')
@@ -536,7 +536,7 @@ def historico_logistica():
     registros = c.fetchall()
     conn.close()
 
-    total_geral = sum([int(r[9]) for r in registros]) if registros else 0
+    total_geral = sum([int(r[10]) for r in registros]) if registros else 0
 
     if motorista:
         media = Decimal(total_geral).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
