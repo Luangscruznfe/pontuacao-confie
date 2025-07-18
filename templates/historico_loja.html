@@ -26,11 +26,11 @@
   <tr>
     <td>{{ r[0] }}</td>  <!-- ID -->
     <td>{{ r[1] }}</td>  <!-- Data -->
-    <td>{{ r[2] }}</td>  <!-- A -->
-    <td>{{ r[3] }}</td>  <!-- B -->
-    <td>{{ r[4] }}</td>  <!-- C -->
-    <td>{{ r[5] }}</td>  <!-- D -->
-    <td>{{ r[6] }}</td>  <!-- E -->
+    <td>{{ r[2] }}</td>  <!-- Organização da loja (A) -->
+    <td>{{ r[3] }}</td>  <!-- Pontualidade (B) -->
+    <td>{{ r[4] }}</td>  <!-- Fechamento do caixa (C) -->
+    <td>{{ r[5] }}</td>  <!-- Não postar em rede social (D) -->
+    <td>{{ r[6] }}</td>  <!-- Validade / Avaria (E) -->
     <td>
       {% set extras = r[7] %}
       {% if 'meta' in extras %}Meta de faturamento (+2)<br>{% endif %}

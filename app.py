@@ -559,7 +559,7 @@ def historico_logistica():
 def historico_loja():
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute('SELECT data, A, B, C, D, E, extras, observacao, total FROM loja ORDER BY data DESC')
+    c.execute("SELECT id, data, A, B, C, D, E, extras, total, observacao FROM loja ORDER BY data DESC")
     registros = c.fetchall()
     conn.close()
 
