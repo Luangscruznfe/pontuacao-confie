@@ -25,7 +25,7 @@
   {% for r in registros %}
   <tr>
     <td>{{ r[0] }}</td>  <!-- ID -->
-    <td>{{ r[1] }}</td>  <!-- Data -->
+    <td>{{ r[1]|datetimeformat }}</td>  
     <td>{{ r[2] }}</td>  <!-- Organização da loja (A) -->
     <td>{{ r[3] }}</td>  <!-- Pontualidade (B) -->
     <td>{{ r[4] }}</td>  <!-- Fechamento do caixa (C) -->
