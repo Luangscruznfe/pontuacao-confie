@@ -14,6 +14,7 @@ from flask import send_file
 import io
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
+DELETE_PASSWORD = 'confie123'
 
 
 
