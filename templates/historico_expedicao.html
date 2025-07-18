@@ -11,6 +11,7 @@
     <table class="table table-bordered text-white">
       <thead class="table-dark">
         <tr>
+ 	  <th>ID</th>
           <th>Data</th>
           <th>
             Organização e limpeza estoque<br>
@@ -40,22 +41,19 @@
 
       <tbody>
         {% for r in registros %}
-        <tr>
-          <td>{{ r[0]|datetimeformat }}</td>
-          <td>{{ r[1] }}</td>
-          <td>{{ r[2] }}</td>
-          <td>{{ r[3] }}</td>
-          <td>{{ r[4] }}</td>
-          <td>{{ r[5] }}</td>
-          <td>
-            {% set extras = r[6] %}
-            {% if 'meta' in extras %}Meta de faturamento (+2)<br>{% endif %}
-            {% if 'equipe90' in extras %}Equipe chegou a 90% de pontuação (+1){% endif %}
-          </td>
-          <td>{{ r[8] }}</td>
-          <td>{{ r[7] if r[7] and r[7]|string|lower != 'nan' else '' }}</td>
-        </tr>
-        {% endfor %}
+  <tr>
+    <td>{{ r[0] }}</td>  <!-- ID -->
+    <td>{{ r[1]|datetimeformat }}</td>  <!-- Data formatada -->
+    <td>{{ r[2] }}</td>  <!-- Organização e limpeza estoque -->
+    <td>{{ r[3] }}</td>  <!-- Separação correta do mapa -->
+    <td>{{ r[4] }}</td>  <!-- Faturamento OK -->
+    <td>{{ r[5] }}</td>  <!-- Erros / Devoluções -->
+    <td>{{ r[6] }}</td>  <!-- Finalização após horário -->
+    <td>{{ r[7] }}</td>  <!-- Extras -->
+    <td>{{ r[8] }}</td>  <!-- Total -->
+    <td>{{ r[9] }}</td>  <!-- Observação -->
+  </tr>
+{% endfor %}
         <tr>
           <td colspan="7" class="text-end fw-bold">Total Geral:</td>
           <td class="fw-bold {% if total_geral >= 0 %}text-success{% else %}text-danger{% endif %}">
