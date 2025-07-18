@@ -521,7 +521,7 @@ def historico_logistica():
 
     if motorista:
         c.execute('''
-            SELECT data, motorista, A, B, C, D, E, extras, observacao, total 
+            SELECT id, data, motorista, A, B, C, D, E, extras, observacao  
             FROM logistica 
             WHERE motorista = %s 
             ORDER BY data DESC

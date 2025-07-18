@@ -27,81 +27,84 @@
   <div class="table-responsive">
     <table class="table table-bordered text-white">
       <thead class="table-dark">
-        <tr>
-          <th>Data</th>
-          <th>Motorista</th>
-          <th>
-            Entregas concluídas 100%<br>
-            <span class="setor-financeiro">(Financeiro)</span>
-          </th>
-          <th>
-            Veículo limpo e organizado<br>
-            <span class="setor-gerente">(Gerente ADM)</span>
-          </th>
-          <th>
-            Acerto organizado e correto<br>
-            <span class="setor-financeiro">(Financeiro)</span>
-          </th>
-          <th>
-            Questões em relação à jornada<br>
-            <span class="setor-rh">(RH)</span>
-          </th>
-          <th>
-            Erro do entregador<br>
-            <span class="setor-faturamento">(Faturamento)</span>
-          </th>
-          <th>Extras</th>
-          <th>Observação</th>
-          <th>Total</th>
-        </tr>
-      </thead>
+  <tr>
+    <th>ID</th>
+    <th>Data</th>
+    <th>Motorista</th>
+    <th>
+      Entregas concluídas 100%<br>
+      <span class="setor-financeiro">(Financeiro)</span>
+    </th>
+    <th>
+      Veículo limpo e organizado<br>
+      <span class="setor-gerente">(Gerente ADM)</span>
+    </th>
+    <th>
+      Acerto organizado e correto<br>
+      <span class="setor-financeiro">(Financeiro)</span>
+    </th>
+    <th>
+      Questões em relação à jornada<br>
+      <span class="setor-rh">(RH)</span>
+    </th>
+    <th>
+      Erro do entregador<br>
+      <span class="setor-faturamento">(Faturamento)</span>
+    </th>
+    <th>Extras</th>
+    <th>Observação</th>
+    <th>Total</th>
+  </tr>
+</thead>
 
-      <tbody>
-        {% set ns = namespace(total_geral=0) %}
-        {% for r in registros %}
-          {% set extras = r[7].split(',') if r[7] else [] %}
-          {% set total_parcial = (r[2]|int) + (r[3]|int) + (r[4]|int) + (r[5]|int) + (r[6]|int) %}
-          {% if 'meta' in extras %} {% set total_parcial = total_parcial + 2 %} {% endif %}
-          {% if 'equipe90' in extras %} {% set total_parcial = total_parcial + 1 %} {% endif %}
-          {% if 'economia' in extras %} {% set total_parcial = total_parcial + 2 %} {% endif %}
-          {% set ns.total_geral = ns.total_geral + total_parcial %}
-          <tr>
-            <td>{{ r[0]|datetimeformat }}</td>
-            <td>{{ r[1] }}</td>
-            <td>{{ r[2] }}</td>
-            <td>{{ r[3] }}</td>
-            <td>{{ r[4] }}</td>
-            <td>{{ r[5] }}</td>
-            <td>{{ r[6] }}</td>
-            <td>
-              {% for extra in extras %}
-                {% if extra == 'meta' %}
-                  ⭐ Meta diária batida / Conversão 70%<br>
-                {% elif extra == 'equipe90' %}
-                  🤝 Equipe chegou a 90% da meta geral<br>
-                {% elif extra == 'economia' %}
-                  ⛽ Economia de combustível 10% geral<br>
-                {% endif %}
-              {% endfor %}
-            </td>
-            <td>{{ r[8] if r[8] and r[8]|string|lower != 'nan' else '' }}</td>
-            <td>{{ total_parcial }}</td>
-          </tr>
+<tbody>
+  {% set ns = namespace(total_geral=0) %}
+  {% for r in registros %}
+    {% set extras = r[8].split(',') if r[8] else [] %}
+    {% set total_parcial = (r[3]|int) + (r[4]|int) + (r[5]|int) + (r[6]|int) + (r[7]|int) %}
+    {% if 'meta' in extras %} {% set total_parcial = total_parcial + 2 %} {% endif %}
+    {% if 'equipe90' in extras %} {% set total_parcial = total_parcial + 1 %} {% endif %}
+    {% if 'economia' in extras %} {% set total_parcial = total_parcial + 2 %} {% endif %}
+    {% set ns.total_geral = ns.total_geral + total_parcial %}
+    <tr>
+      <td>{{ r[0] }}</td>  <!-- ID -->
+      <td>{{ r[1]|datetimeformat }}</td>  <!-- Data -->
+      <td>{{ r[2] }}</td>  <!-- Motorista -->
+      <td>{{ r[3] }}</td>  <!-- Entregas 100% -->
+      <td>{{ r[4] }}</td>  <!-- Veículo limpo -->
+      <td>{{ r[5] }}</td>  <!-- Acerto correto -->
+      <td>{{ r[6] }}</td>  <!-- Jornada -->
+      <td>{{ r[7] }}</td>  <!-- Erro entregador -->
+      <td>
+        {% for extra in extras %}
+          {% if extra == 'meta' %}
+            ⭐ Meta diária batida / Conversão 70%<br>
+          {% elif extra == 'equipe90' %}
+            🤝 Equipe chegou a 90% da meta geral<br>
+          {% elif extra == 'economia' %}
+            ⛽ Economia de combustível 10% geral<br>
+          {% endif %}
         {% endfor %}
-      </tbody>
+      </td>
+      <td>{{ r[9] if r[9] and r[9]|string|lower != 'nan' else '' }}</td>  <!-- Observação -->
+      <td>{{ total_parcial }}</td>
+    </tr>
+  {% endfor %}
+</tbody>
 
       <tfoot class="table-dark">
-        <tr>
-          <td colspan="9" class="text-end fw-bold">Total Geral:</td>
-          <td class="fw-bold {% if ns.total_geral >= 0 %}text-success{% else %}text-danger{% endif %}">
-            {{ ns.total_geral }}
-          </td>
-        </tr>
-        <tr>
-          <td colspan="9" class="text-end fw-bold">Média:</td>
-          <td class="fw-bold text-info">{{ media }}</td>
-        </tr>
-      </tfoot>
+  <tr>
+    <td colspan="10" class="text-end fw-bold">Total Geral:</td>
+    <td class="fw-bold {% if ns.total_geral >= 0 %}text-success{% else %}text-danger{% endif %}">
+      {{ ns.total_geral }}
+    </td>
+  </tr>
+  <tr>
+    <td colspan="10" class="text-end fw-bold">Média:</td>
+    <td class="fw-bold text-info">{{ media }}</td>
+  </tr>
+</tfoot>
+
     </table>
   </div>
 
