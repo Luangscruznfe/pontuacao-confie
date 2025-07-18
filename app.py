@@ -410,11 +410,12 @@ def expedicao():
 def historico_expedicao():
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute('SELECT data, A, B, C, D, E, extras, observacao, total FROM expedicao ORDER BY data DESC')
-    registros = c.fetchall()
-    conn.close()
 
-    total_geral = sum([r[8] for r in registros]) if registros else 0  # índice 8 = campo total
+    c.execute("SELECT id, data, A, B, C, D, E, extras, total, observacao FROM expedicao ORDER BY data DESC")
+    registros = c.fetchall()
+
+    total_geral = sum([r[8] for r in registros])  # índice do total
+    conn.close()
 
     return render_template('historico_expedicao.html', registros=registros, total_geral=total_geral)
 	
