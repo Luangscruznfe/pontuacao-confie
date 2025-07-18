@@ -11,7 +11,7 @@
     <table class="table table-bordered text-white">
       <thead class="table-dark">
         <tr>
- 	  <th>ID</th>
+          <th>ID</th>
           <th>Data</th>
           <th>
             Organização e limpeza estoque<br>
@@ -41,29 +41,30 @@
 
       <tbody>
         {% for r in registros %}
-<tr>
-  <td>{{ r[0] }}</td>  <!-- ID -->
-  <td>{{ r[1]|datetimeformat }}</td>  <!-- Data -->
-  <td>{{ r[2] }}</td>  <!-- Organização e limpeza estoque -->
-  <td>{{ r[3] }}</td>  <!-- Separação correta do mapa -->
-  <td>{{ r[4] }}</td>  <!-- Faturamento OK -->
-  <td>{{ r[5] }}</td>  <!-- Erros / Devoluções -->
-  <td>{{ r[6] }}</td>  <!-- Finalização após horário -->
-  <td>
-    {% set extras = r[7] %}
-    {% if 'meta' in extras %}Meta de faturamento (+2)<br>{% endif %}
-    {% if 'equipe90' in extras %}Equipe chegou a 90% de pontuação (+1){% endif %}
-  </td>
-  <td>{{ r[8] }}</td>  <!-- Total -->
-  <td>{{ r[9] if r[9] and r[9]|string|lower != 'nan' else '' }}</td>  <!-- Observação -->
-</tr>
-{% endfor %}
+        <tr>
+          <td>{{ r[0] }}</td>  <!-- ID -->
+          <td>{{ r[1]|datetimeformat }}</td>  <!-- Data -->
+          <td>{{ r[2] }}</td>  <!-- Organização -->
+          <td>{{ r[3] }}</td>  <!-- Separação -->
+          <td>{{ r[4] }}</td>  <!-- Faturamento OK -->
+          <td>{{ r[5] }}</td>  <!-- Erros / Devolução -->
+          <td>{{ r[6] }}</td>  <!-- Finalização após horário -->
+          <td>
+            {% set extras = r[7] %}
+            {% if extras %}
+              {% if 'meta' in extras %}Meta de faturamento (+2)<br>{% endif %}
+              {% if 'equipe90' in extras %}Equipe chegou a 90% de pontuação (+1){% endif %}
+            {% endif %}
+          </td>
+          <td>{{ r[8] }}</td>  <!-- Total -->
+          <td>{{ r[9] if r[9] and r[9]|string|lower != 'nan' else '' }}</td>  <!-- Observação -->
+        </tr>
+        {% endfor %}
         <tr>
           <td colspan="9" class="text-end fw-bold">Total Geral:</td>
           <td class="fw-bold {% if total_geral >= 0 %}text-success{% else %}text-danger{% endif %}">
             {{ total_geral }}
           </td>
-          <td></td>
         </tr>
       </tbody>
     </table>
