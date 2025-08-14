@@ -7,10 +7,18 @@
     <h2 class="mb-4">🛒 Registro de Pontuação - Loja</h2>
 
     <form method="POST">
-        <div class="mb-3">
-            <label for="data" class="form-label">Data:</label>
-            <input type="date" class="form-control" name="data" required>
-        </div>
+  <div class="mb-3">
+    <label for="data" class="form-label">Data:</label>
+    <input type="date" class="form-control" name="data" id="data" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="datas" class="form-label">Múltiplas datas (opcional):</label>
+    <textarea class="form-control" name="datas" id="datas" rows="2"
+      placeholder="AAAA-MM-DD, AAAA-MM-DD, AAAA-MM-DD"></textarea>
+    <small class="text-muted">Se preencher aqui, o campo “Data” acima será ignorado.</small>
+  </div>
+
 
         <div class="form-check mb-2">
             <input class="form-check-input" type="checkbox" name="criterios" value="A" id="A">
@@ -53,5 +61,20 @@
 
         <button type="submit" class="btn btn-success">Salvar</button>
     </form>
+<script>
+  // Se "Múltiplas datas" tiver conteúdo, remove o "required" do campo Data
+  const inputData = document.getElementById('data');
+  const textareaDatas = document.getElementById('datas');
+
+  function toggleRequired() {
+    if (textareaDatas.value.trim()) {
+      inputData.removeAttribute('required');
+    } else {
+      inputData.setAttribute('required', 'required');
+    }
+  }
+  textareaDatas.addEventListener('input', toggleRequired);
+  toggleRequired();
+</script>
 </div>
 {% endblock %}

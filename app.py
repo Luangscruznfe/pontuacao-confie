@@ -5,6 +5,7 @@ from datetime import datetime
 from decimal import Decimal, ROUND_HALF_UP
 import psycopg2
 import os
+import re
 import cloudinary
 import cloudinary.uploader
 import tempfile
@@ -271,71 +272,104 @@ def safe_int(value):
 @app.route('/loja', methods=['GET', 'POST'])
 def loja():
     if request.method == 'POST':
-        data = request.form.get('data')
-        criterios = request.form.getlist('criterios')  # checkboxes A-E
+        data_unica = request.form.get('data')
+        criterios  = request.form.getlist('criterios')  # checkboxes A-E
         observacao = request.form.get('observacao', '')
-        extras = request.form.getlist('extras')
+        extras     = request.form.getlist('extras')
 
-        # Pesos fixos de cada critério
+        # Pesos fixos de cada critério (igual ao seu)
         pesos = {'A': 1, 'B': 1, 'C': 1, 'D': -1, 'E': -2}
 
-        # Marcar 1 se foi selecionado, 0 se não
+        # Flags (1 se marcou, 0 se não) – igual ao seu
         A = int('A' in criterios)
         B = int('B' in criterios)
         C = int('C' in criterios)
         D = int('D' in criterios)
         E = int('E' in criterios)
 
-        # Verificar travas para critérios já registrados
+        # === NOVO: ler múltiplas datas (opcional) ===
+        datas_raw = request.form.get('datas', '').strip()
+        lista_datas, invalidas = [], []
+        if datas_raw:
+            # aceita vírgula, espaço ou quebra de linha
+            tokens = re.split(r'[,\n;\s]+', datas_raw)
+            for t in tokens:
+                if not t:
+                    continue
+                try:
+                    datetime.strptime(t, "%Y-%m-%d")
+                    lista_datas.append(t)
+                except:
+                    invalidas.append(t)
+        if not lista_datas:
+            lista_datas = [data_unica]
+
+        inseridos = 0
+        pulados   = 0
+
         conn = get_db_connection()
         c = conn.cursor()
-        c.execute("SELECT A, B, C, D, E FROM loja WHERE data = %s", (data,))
-        registros = c.fetchall()
+        try:
+            for dia in lista_datas:
+                # Mesmas travas que você já usa: A–E não podem repetir no mesmo dia
+                c.execute("SELECT A, B, C, D, E FROM loja WHERE data = %s", (dia,))
+                registros = c.fetchall()
 
-        for registro in registros:
-            crits_existentes = {
-                'A': registro[0],
-                'B': registro[1],
-                'C': registro[2],
-                'D': registro[3],
-                'E': registro[4],
-            }
-            for c_sel in criterios:
-                if crits_existentes.get(c_sel, 0) == 1:
-                    nomes = {
-                        'A': "Organização da loja",
-                        'B': "Pontualidade",
-                        'C': "Fechamento do caixa",
-                        'D': "Postagem em rede social",
-                        'E': "Cumprimento de metas"
+                conflito = False
+                for registro in registros:
+                    crits_existentes = {
+                        'A': registro[0],
+                        'B': registro[1],
+                        'C': registro[2],
+                        'D': registro[3],
+                        'E': registro[4],
                     }
-                    flash(f"❌ A pontuação '{nomes[c_sel]}' já foi registrada para esse dia.", "danger")
-                    conn.close()
-                    return redirect('/loja')
+                    for c_sel in criterios:
+                        if crits_existentes.get(c_sel, 0) == 1:
+                            conflito = True
+                            break
+                    if conflito:
+                        break
 
-        # Soma os pontos dos critérios
-        total = sum([pesos[c] for c in criterios])
+                if conflito:
+                    # Em vez de abortar tudo, só pula esse dia
+                    pulados += 1
+                    continue
 
-        # Pontos extras
-        if 'meta' in extras:
-            total += 2
-        if 'equipe90' in extras:
-            total += 1
+                # Total por dia (mesmas regras + extras)
+                total = sum([pesos[c] for c in criterios])
+                if 'meta' in extras:
+                    total += 2
+                if 'equipe90' in extras:
+                    total += 1
 
-        # Inserir no banco
-        c.execute("""
-            INSERT INTO loja (data, A, B, C, D, E, extras, observacao, total)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (data, A, B, C, D, E, ','.join(extras), observacao, total))
-        conn.commit()
-        conn.close()
+                # Inserir no banco para este dia
+                c.execute("""
+                    INSERT INTO loja (data, A, B, C, D, E, extras, observacao, total)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (dia, A, B, C, D, E, ','.join(extras), observacao, total))
+                inseridos += 1
 
-        flash("✅ Pontuação registrada com sucesso!", "success")
+            conn.commit()
+        finally:
+            conn.close()
+
+        # Resumo amigável
+        msgs = []
+        if inseridos:
+            msgs.append(f"✅ {inseridos} registro(s) inserido(s).")
+        if pulados:
+            msgs.append(f"⚠️ {pulados} dia(s) pulado(s) por já conterem os mesmos critérios.")
+        if invalidas:
+            msgs.append(f"❌ Datas inválidas ignoradas: {', '.join(invalidas)}")
+
+        flash(' '.join(msgs) if msgs else "Nada a fazer.", "success" if inseridos else "warning")
+
+        # mantém seu backup automático
         fazer_backup_e_enviar()
         return redirect('/loja')
 
     return render_template('loja.html')
-
 
 # =======================================================================
 # EXPEDIÇÃO
