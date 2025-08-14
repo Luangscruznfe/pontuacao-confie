@@ -442,7 +442,7 @@ def logistica():
         )
     ''')
 
-    motoristas = ['Denilson', 'Fabio', 'Renan', 'Robson', 'Simone', 'Vinicius', 'Equipe']
+    motoristas = ['Denilson', 'Fabio', 'Rogerio', 'Robson', 'Simone', 'Vinicius', 'Equipe']
 
     if request.method == 'POST':
         data = request.form['data']
@@ -517,7 +517,7 @@ def historico_logistica():
     c = conn.cursor()
 
     motorista = request.args.get('motorista', '')
-    motoristas = ['Denilson', 'Fabio', 'Renan', 'Robson', 'Simone', 'Vinicius', 'Equipe']
+    motoristas = ['Denilson', 'Fabio', 'Rogerio', 'Robson', 'Simone', 'Vinicius', 'Equipe']
 
     if motorista:
         c.execute('''
