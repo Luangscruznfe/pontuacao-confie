@@ -396,17 +396,17 @@ def loja():
 @app.route('/expedicao', methods=['GET', 'POST'])
 def expedicao():
     if request.method == 'POST':
-        data = request.form.get('data')
+        data_unica = request.form.get('data', '').strip()
         criterios = request.form.getlist('criterios')
 
-        A = 1 if 'A' in criterios else 0
-        B = 1 if 'B' in criterios else 0
-        C = 1 if 'C' in criterios else 0
+        A = 1  if 'A' in criterios else 0
+        B = 1  if 'B' in criterios else 0
+        C = 1  if 'C' in criterios else 0
         D = -2 if 'D' in criterios else 0
         E = -1 if 'E' in criterios else 0
 
         observacao = request.form.get('observacao', '')
-        extras = request.form.getlist('extras')
+        extras     = request.form.getlist('extras')
 
         extras_pontos = 0
         if 'meta' in extras:
@@ -414,50 +414,81 @@ def expedicao():
         if 'equipe90' in extras:
             extras_pontos += 1
 
-        total = A + B + C + D + E + extras_pontos
+        total_base = A + B + C + D + E + extras_pontos
+
+        # === NOVO: múltiplas datas (aceita dd/mm/aaaa) ===
+        datas_raw = request.form.get('datas', '').strip()
+        lista_datas, invalidas = [], []
+
+        if datas_raw:
+            import re
+            tokens = re.split(r'[,\n;\s]+', datas_raw)  # vírgula, espaço ou quebra de linha
+            for t in tokens:
+                if not t:
+                    continue
+                iso = norm_date_to_iso(t)  # usa seu helper (dd/mm/aaaa ou yyyy-mm-dd -> yyyy-mm-dd)
+                if iso:
+                    lista_datas.append(iso)
+                else:
+                    invalidas.append(t)
+
+        if not lista_datas:
+            iso = norm_date_to_iso(data_unica or '')
+            if not iso:
+                flash('❌ Informe a data ou selecione múltiplas datas no formato dd/mm/aaaa.', 'danger')
+                return redirect('/expedicao')
+            lista_datas = [iso]
+
+        # Evita datas duplicadas
+        lista_datas = sorted(set(lista_datas))
+
+        inseridos, pulados = 0, []
 
         conn = get_db_connection()
         c = conn.cursor()
+        try:
+            for dia in lista_datas:
+                # ✅ Travas por dia (mesmo comportamento de antes)
+                c.execute("SELECT A, B, C, D, E FROM expedicao WHERE data = %s", (dia,))
+                registros_dia = c.fetchall()
 
-        # ✅ Verificações de trava corretas
-        c.execute("SELECT A, B, C, D, E FROM expedicao WHERE data = %s", (data,))
-        registros_dia = c.fetchall()
+                conflito = (
+                    ('A' in criterios and any(r[0] == 1   for r in registros_dia)) or
+                    ('B' in criterios and any(r[1] == 1   for r in registros_dia)) or
+                    ('C' in criterios and any(r[2] == 1   for r in registros_dia)) or
+                    ('D' in criterios and any(r[3] == -2  for r in registros_dia)) or
+                    ('E' in criterios and any(r[4] == -1  for r in registros_dia))
+                )
 
-        if 'A' in criterios and any(r[0] == 1 for r in registros_dia):
-            flash("⚠️ O critério A já foi registrado neste dia.", "danger")
-            conn.close()
-            return redirect('/expedicao')
-        if 'B' in criterios and any(r[1] == 1 for r in registros_dia):
-            flash("⚠️ O critério B já foi registrado neste dia.", "danger")
-            conn.close()
-            return redirect('/expedicao')
-        if 'C' in criterios and any(r[2] == 1 for r in registros_dia):
-            flash("⚠️ O critério C já foi registrado neste dia.", "danger")
-            conn.close()
-            return redirect('/expedicao')
-        if 'D' in criterios and any(r[3] == -2 for r in registros_dia):
-            flash("⚠️ O critério D já foi registrado neste dia.", "danger")
-            conn.close()
-            return redirect('/expedicao')
-        if 'E' in criterios and any(r[4] == -1 for r in registros_dia):
-            flash("⚠️ O critério E já foi registrado neste dia.", "danger")
-            conn.close()
-            return redirect('/expedicao')
+                if conflito:
+                    pulados.append(dia)
+                    continue
 
-        # Se passou nas travas, insere
-        c.execute("""
-            INSERT INTO expedicao (data, A, B, C, D, E, extras, observacao, total)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (data, A, B, C, D, E, ','.join(extras), observacao, total))
-        conn.commit()
-        conn.close()
+                # INSERT mantendo sua estrutura
+                c.execute("""
+                    INSERT INTO expedicao (data, A, B, C, D, E, extras, observacao, total)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (dia, A, B, C, D, E, ','.join(extras), observacao, total_base))
+                inseridos += 1
 
-        flash("✅ Pontuação registrada com sucesso!", "success")
+            conn.commit()
+        finally:
+            conn.close()
+
+        # Feedback
+        msgs = []
+        if inseridos:
+            msgs.append(f"✅ {inseridos} registro(s) inserido(s).")
+        if pulados:
+            msgs.append(f"⚠️ Dias pulados por já conterem os mesmos critérios: {', '.join(pulados)}.")
+        if invalidas:
+            msgs.append(f"❌ Datas inválidas ignoradas: {', '.join(invalidas)}")
+
+        flash(' '.join(msgs) if msgs else "Nada a fazer.", "success" if inseridos else "warning")
         fazer_backup_e_enviar()
         return redirect('/expedicao')
 
     return render_template('expedicao.html')
-
 
 @app.route('/historico_expedicao')
 def historico_expedicao():
