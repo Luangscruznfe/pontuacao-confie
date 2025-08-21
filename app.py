@@ -148,6 +148,14 @@ def fazer_backup_e_enviar():
         print("Erro ao fazer backup automático:", e)
         return None
 
+# Conversor de data (dd/mm/aaaa ou yyyy-mm-dd → yyyy-mm-dd)
+def norm_date_to_iso(s):
+    for fmt in ("%Y-%m-%d", "%d/%m/%Y"):
+        try:
+            return datetime.strptime(s.strip(), fmt).strftime("%Y-%m-%d")
+        except Exception:
+            pass
+    return None
 
 
 @app.template_filter('datetimeformat')
@@ -272,7 +280,7 @@ def safe_int(value):
 @app.route('/loja', methods=['GET', 'POST'])
 def loja():
     if request.method == 'POST':
-        data_unica = request.form.get('data')
+        data_unica = request.form.get('data', '').strip()
         criterios  = request.form.getlist('criterios')  # checkboxes A-E
         observacao = request.form.get('observacao', '')
         extras     = request.form.getlist('extras')
@@ -287,22 +295,32 @@ def loja():
         D = int('D' in criterios)
         E = int('E' in criterios)
 
-        # === NOVO: ler múltiplas datas (opcional) ===
+        # === NOVO: ler múltiplas datas (opcional) com suporte a dd/mm/aaaa ===
         datas_raw = request.form.get('datas', '').strip()
         lista_datas, invalidas = [], []
+
         if datas_raw:
             # aceita vírgula, espaço ou quebra de linha
             tokens = re.split(r'[,\n;\s]+', datas_raw)
             for t in tokens:
                 if not t:
                     continue
-                try:
-                    datetime.strptime(t, "%Y-%m-%d")
-                    lista_datas.append(t)
-                except:
+                iso = norm_date_to_iso(t)  # aceita dd/mm/aaaa ou yyyy-mm-dd
+                if iso:
+                    lista_datas.append(iso)
+                else:
                     invalidas.append(t)
+
+        # Se não veio múltipla, usa a data única (também normalizada)
         if not lista_datas:
-            lista_datas = [data_unica]
+            iso = norm_date_to_iso(data_unica or '')
+            if not iso:
+                flash('❌ Informe a data ou selecione múltiplas datas no formato dd/mm/aaaa.', 'danger')
+                return redirect('/loja')
+            lista_datas = [iso]
+
+        # Evita datas repetidas e ordena
+        lista_datas = sorted(set(lista_datas))
 
         inseridos = 0
         pulados   = 0
@@ -370,6 +388,7 @@ def loja():
         return redirect('/loja')
 
     return render_template('loja.html')
+
 
 # =======================================================================
 # EXPEDIÇÃO
