@@ -529,8 +529,8 @@ def logistica():
     motoristas = ['Denilson', 'Fabio', 'Rogerio', 'Robson', 'Simone', 'Vinicius', 'Equipe']
 
     if request.method == 'POST':
-        data = request.form['data']
-        motorista = request.form['motorista']
+        data_unica = request.form.get('data', '').strip()
+        motorista  = request.form['motorista']
         A = safe_int(request.form.get('A'))
         B = safe_int(request.form.get('B'))
         C = safe_int(request.form.get('C'))
@@ -539,60 +539,94 @@ def logistica():
         extras = request.form.getlist('extras')
         observacao = request.form.get('observacao', '')
 
+        # total base
         total = A + B + C + D + E
 
-        # ✅ Soma extra de economia
+        # extra: economia (+2)
         if 'economia' in extras:
             total += 2
 
-        # 🔒 Validação do extra 'equipe90'
+        # validação do extra 'equipe90'
         if 'equipe90' in extras and motorista != 'Equipe':
             flash("❌ O ponto extra 'Equipe chegou a 90%' só pode ser usado com o motorista 'Equipe'.", "danger")
             conn.close()
             return redirect('/logistica')
-
         if 'equipe90' in extras:
             total += 1
 
-        # 🔒 Verificações de trava por motorista
-        c.execute("SELECT A, B, C, D, E FROM logistica WHERE data = %s AND motorista = %s", (data, motorista))
-        registros = c.fetchall()
+        # === NOVO: múltiplas datas (dd/mm/aaaa aceito) ===
+        datas_raw = request.form.get('datas', '').strip()
+        lista_datas, invalidas = [], []
 
-        if any(r[0] == 1 for r in registros) and A == 1:
-            flash("⚠️ O critério A já foi registrado para esse motorista nesse dia.", "danger")
-            conn.close()
-            return redirect('/logistica')
-        if any(r[1] == 1 for r in registros) and B == 1:
-            flash("⚠️ O critério B já foi registrado para esse motorista nesse dia.", "danger")
-            conn.close()
-            return redirect('/logistica')
-        if any(r[2] == 1 for r in registros) and C == 1:
-            flash("⚠️ O critério C já foi registrado para esse motorista nesse dia.", "danger")
-            conn.close()
-            return redirect('/logistica')
-        if any(r[3] == -2 for r in registros) and D == -2:
-            flash("⚠️ O critério D já foi registrado para esse motorista nesse dia.", "danger")
-            conn.close()
-            return redirect('/logistica')
-        if any(r[4] == -1 for r in registros) and E == -1:
-            flash("⚠️ O critério E já foi registrado para esse motorista nesse dia.", "danger")
-            conn.close()
-            return redirect('/logistica')
+        if datas_raw:
+            import re
+            tokens = re.split(r'[,\n;\s]+', datas_raw)  # vírgula, espaço ou quebra de linha
+            for t in tokens:
+                if not t:
+                    continue
+                iso = norm_date_to_iso(t)  # dd/mm/aaaa ou yyyy-mm-dd -> yyyy-mm-dd
+                if iso:
+                    lista_datas.append(iso)
+                else:
+                    invalidas.append(t)
 
-        # ✅ Se passou nas travas, insere
-        c.execute('''
-            INSERT INTO logistica (data, motorista, A, B, C, D, E, extras, observacao, total)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        ''', (data, motorista, A, B, C, D, E, ','.join(extras), observacao, total))
+        if not lista_datas:
+            iso = norm_date_to_iso(data_unica or '')
+            if not iso:
+                flash('❌ Informe a data ou selecione múltiplas datas no formato dd/mm/aaaa.', 'danger')
+                conn.close()
+                return redirect('/logistica')
+            lista_datas = [iso]
 
-        conn.commit()
-        conn.close()
-        flash("✅ Pontuação da logística registrada com sucesso!", "success")
+        # Evita datas duplicadas
+        lista_datas = sorted(set(lista_datas))
+
+        inseridos, pulados = 0, []
+
+        try:
+            for dia in lista_datas:
+                # Travas por motorista + data (mesmo comportamento de antes)
+                c.execute("SELECT A, B, C, D, E FROM logistica WHERE data = %s AND motorista = %s", (dia, motorista))
+                registros = c.fetchall()
+
+                conflito = (
+                    (A == 1   and any(r[0] == 1   for r in registros)) or
+                    (B == 1   and any(r[1] == 1   for r in registros)) or
+                    (C == 1   and any(r[2] == 1   for r in registros)) or
+                    (D == -2  and any(r[3] == -2  for r in registros)) or
+                    (E == -1  and any(r[4] == -1  for r in registros))
+                )
+                if conflito:
+                    pulados.append(dia)
+                    continue
+
+                # INSERT
+                c.execute('''
+                    INSERT INTO logistica (data, motorista, A, B, C, D, E, extras, observacao, total)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ''', (dia, motorista, A, B, C, D, E, ','.join(extras), observacao, total))
+                inseridos += 1
+
+            conn.commit()
+        finally:
+            conn.close()
+
+        # Feedback consolidado
+        msgs = []
+        if inseridos:
+            msgs.append(f"✅ {inseridos} registro(s) inserido(s).")
+        if pulados:
+            msgs.append(f"⚠️ Dias pulados por já conterem os mesmos critérios: {', '.join(pulados)}.")
+        if invalidas:
+            msgs.append(f"❌ Datas inválidas ignoradas: {', '.join(invalidas)}")
+
+        flash(' '.join(msgs) if msgs else "Nada a fazer.", "success" if inseridos else "warning")
         fazer_backup_e_enviar()
         return redirect('/logistica')
 
     conn.close()
     return render_template('logistica.html', motoristas=motoristas)
+
 
 
 @app.route('/historico_logistica')
