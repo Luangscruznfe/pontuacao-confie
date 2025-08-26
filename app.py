@@ -532,7 +532,11 @@ def logistica():
         data_unica = request.form.get('data', '').strip()
         motorista  = request.form['motorista']
         A = safe_int(request.form.get('A'))
-        B = safe_int(request.form.get('B'))
+        # B pode ter pontos customizados via campo B_valor
+        if request.form.get("B") is not None:
+            B = safe_int(request.form.get("B_valor"))
+        else:
+            B = 0
         C = safe_int(request.form.get('C'))
         D = safe_int(request.form.get('D'))
         E = safe_int(request.form.get('E'))
@@ -715,101 +719,71 @@ def comercial():
     vendedores = ['EVERTON', 'MARCELO', 'PEDRO', 'SILVANA', 'TIAGO', 'RODOLFO', 'MARCOS', 'THYAGO', 'EQUIPE']
 
     if request.method == 'POST':
-        data_unica = request.form.get('data', '').strip()
-        vendedor   = request.form['vendedor']
+        data = request.form['data']
+        vendedor = request.form['vendedor']
         A = safe_int(request.form.get('A'))
-        B = safe_int(request.form.get('B'))
+        # B pode ter pontos customizados via campo B_valor
+        if request.form.get("B") is not None:
+            B = safe_int(request.form.get("B_valor"))
+        else:
+            B = 0
         C = safe_int(request.form.get('C'))
         D = safe_int(request.form.get('D'))
         E = safe_int(request.form.get('E'))
-        extras     = request.form.getlist('extras')
+        extras = request.form.getlist('extras')
         observacao = request.form.get('observacao', '')
 
-        # 🔒 extra 'equipe90' só com vendedor 'EQUIPE'
+        # 🔒 Validação do ponto extra equipe90
         if 'equipe90' in extras and vendedor.upper() != 'EQUIPE':
             flash("❌ O ponto extra 'Equipe chegou a 90%' só pode ser usado com o vendedor 'EQUIPE'.", "danger")
             conn.close()
             return redirect('/comercial')
 
-        # === NOVO: múltiplas datas (aceita dd/mm/aaaa) ===
-        datas_raw = request.form.get('datas', '').strip()
-        lista_datas, invalidas = [], []
+        # 🔒 Travas por vendedor e data (agora considerando qualquer valor diferente de zero)
+        c.execute("SELECT A, B, C, D, E FROM comercial WHERE data = %s AND vendedor = %s", (data, vendedor))
+        registros = c.fetchall()
 
-        if datas_raw:
-            import re
-            tokens = re.split(r'[,\n;\s]+', datas_raw)  # vírgula, espaço ou quebra de linha
-            for t in tokens:
-                if not t:
-                    continue
-                iso = norm_date_to_iso(t)  # dd/mm/aaaa ou yyyy-mm-dd → yyyy-mm-dd
-                if iso:
-                    lista_datas.append(iso)
-                else:
-                    invalidas.append(t)
-
-        if not lista_datas:
-            iso = norm_date_to_iso(data_unica or '')
-            if not iso:
-                flash('❌ Informe a data ou selecione múltiplas datas no formato dd/mm/aaaa.', 'danger')
-                conn.close()
-                return redirect('/comercial')
-            lista_datas = [iso]
-
-        lista_datas = sorted(set(lista_datas))  # evita duplicadas
-
-        # total base (mesmas regras)
-        total_base = A + B + C + D + E
-        if 'meta' in extras:
-            total_base += 2
-        if 'equipe90' in extras:
-            total_base += 1
-
-        inseridos, pulados = 0, []
-
-        try:
-            for dia in lista_datas:
-                # 🔒 Travas por vendedor+data (mesma lógica de antes)
-                c.execute("SELECT A, B, C, D, E FROM comercial WHERE data = %s AND vendedor = %s", (dia, vendedor))
-                registros = c.fetchall()
-
-                if A != 0 and any(r[0] != 0 for r in registros):
-                    pulados.append(dia); continue
-                if B != 0 and any(r[1] != 0 for r in registros):
-                    pulados.append(dia); continue
-                if C != 0 and any(r[2] != 0 for r in registros):
-                    pulados.append(dia); continue
-                if D != 0 and any(r[3] != 0 for r in registros):
-                    pulados.append(dia); continue
-                if E != 0 and any(r[4] != 0 for r in registros):
-                    pulados.append(dia); continue
-
-                # ✅ Inserção
-                c.execute('''
-                    INSERT INTO comercial (data, vendedor, A, B, C, D, E, extras, observacao, total)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                ''', (dia, vendedor, A, B, C, D, E, ','.join(extras), observacao, total_base))
-                inseridos += 1
-
-            conn.commit()
-        finally:
+        if A != 0 and any(r[0] != 0 for r in registros):
+            flash("⚠️ O critério A já foi registrado para esse vendedor nesse dia.", "danger")
             conn.close()
+            return redirect('/comercial')
+        if B != 0 and any(r[1] != 0 for r in registros):
+            flash("⚠️ O critério B já foi registrado para esse vendedor nesse dia.", "danger")
+            conn.close()
+            return redirect('/comercial')
+        if C != 0 and any(r[2] != 0 for r in registros):
+            flash("⚠️ O critério C já foi registrado para esse vendedor nesse dia.", "danger")
+            conn.close()
+            return redirect('/comercial')
+        if D != 0 and any(r[3] != 0 for r in registros):
+            flash("⚠️ O critério D já foi registrado para esse vendedor nesse dia.", "danger")
+            conn.close()
+            return redirect('/comercial')
+        if E != 0 and any(r[4] != 0 for r in registros):
+            flash("⚠️ O critério E já foi registrado para esse vendedor nesse dia.", "danger")
+            conn.close()
+            return redirect('/comercial')
 
-        # Feedback
-        msgs = []
-        if inseridos:
-            msgs.append(f"✅ {inseridos} registro(s) inserido(s).")
-        if pulados:
-            msgs.append(f"⚠️ Dias pulados por já conterem os mesmos critérios: {', '.join(pulados)}.")
-        if invalidas:
-            msgs.append(f"❌ Datas inválidas ignoradas: {', '.join(invalidas)}")
+        total = A + B + C + D + E
+        if 'meta' in extras:
+            total += 2
+        if 'equipe90' in extras:
+            total += 1
 
-        flash(' '.join(msgs) if msgs else "Nada a fazer.", "success" if inseridos else "warning")
+        c.execute('''
+            INSERT INTO comercial (data, vendedor, A, B, C, D, E, extras, observacao, total)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ''', (data, vendedor, A, B, C, D, E, ','.join(extras), observacao, total))
+
+        conn.commit()
+        conn.close()
+
+        flash("✅ Pontuação registrada com sucesso!", "success")
         fazer_backup_e_enviar()
         return redirect('/comercial')
 
     conn.close()
     return render_template('comercial.html', vendedores=vendedores)
-
 
 
 
