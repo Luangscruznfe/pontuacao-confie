@@ -40,7 +40,17 @@
   <form method="POST" onsubmit="return validarExtraEquipe()">
     <div class="mb-3">
       <label for="data" class="form-label">Data:</label>
-      <input type="date" class="form-control" name="data" id="data" required>
+      <!-- trocado para text para o Flatpickr controlar -->
+      <input type="text" class="form-control" name="data" id="data" required
+             placeholder="dd/mm/aaaa" autocomplete="off">
+    </div>
+
+    <!-- NOVO: múltiplas datas clicáveis -->
+    <div class="mb-3">
+      <label for="datas" class="form-label">Múltiplas datas (opcional):</label>
+      <input type="text" class="form-control" name="datas" id="datas"
+             placeholder="dd/mm/aaaa, dd/mm/aaaa, dd/mm/aaaa" autocomplete="off">
+      <small class="text-muted">Se preencher aqui, o campo “Data” acima será ignorado.</small>
     </div>
 
     <div class="mb-3">
@@ -90,14 +100,11 @@
       </div>
     </div>
 
-
     <div class="mb-3">
       <label for="observacao" class="form-label">📝 Observação (Opcional):</label>
       <textarea class="form-control" name="observacao" id="observacao" rows="2"></textarea>
     </div>
 
-    
-  
     <div class="mb-3">
       <label class="form-label">✅ Pontos extras:</label>
       <div class="form-check">
@@ -123,8 +130,44 @@
     }
     </script>
 
-  
     <button type="submit" class="btn btn-primary mt-3">✅ Salvar Pontuação</button>
-</form>
+  </form>
 </div>
+
+<!-- Flatpickr (CSS + JS) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+
+<script>
+  // Data única em dd/mm/aaaa
+  flatpickr("#data", {
+    dateFormat: "d/m/Y",
+    locale: flatpickr.l10ns.pt,
+    disableMobile: true
+  });
+
+  // Múltiplas datas clicáveis em dd/mm/aaaa
+  flatpickr("#datas", {
+    mode: "multiple",
+    dateFormat: "d/m/Y",
+    conjunction: ", ",
+    locale: flatpickr.l10ns.pt,
+    disableMobile: true,
+    onChange: toggleRequired
+  });
+
+  // Se preencher múltiplas datas, "Data" deixa de ser obrigatório
+  const inputData  = document.getElementById('data');
+  const inputDatas = document.getElementById('datas');
+  function toggleRequired() {
+    if ((inputDatas.value || "").trim()) {
+      inputData.removeAttribute('required');
+    } else {
+      inputData.setAttribute('required', 'required');
+    }
+  }
+  inputDatas.addEventListener('input', toggleRequired);
+  toggleRequired();
+</script>
 {% endblock %}
